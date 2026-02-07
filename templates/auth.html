@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Login / Sign Up" %} - Swasthyam{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 px-4 py-12">
+    <div class="max-w-4xl w-full">
+        <!-- Toggle Buttons -->
+        <div class="flex justify-center mb-8">
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-1 flex shadow-md">
+                <button id="loginTab" class="px-6 py-2 rounded-md text-sm font-medium transition-all duration-300 bg-green-600 text-white">
+                    {% trans "Login" %}
+                </button>
+                <button id="signupTab" class="px-6 py-2 rounded-md text-sm font-medium transition-all duration-300 text-gray-700 dark:text-gray-300">
+                    {% trans "Sign Up" %}
+                </button>
+            </div>
+        </div>
+        
+        <!-- Card Container -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden">
+            <div class="grid md:grid-cols-2">
+                <!-- Left Side - Branding -->
+                <div class="bg-gradient-to-br from-green-600 to-green-700 p-12 text-white hidden md:flex flex-col justify-center">
+                    <div class="mb-8">
+                        <svg class="w-16 h-16 mb-4" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5zm0 18c-3.94-1.26-7-5.82-7-10V8.3l7-3.11 7 3.11V10c0 4.18-3.06 8.74-7 10z"/>
+                        </svg>
+                        <h2 class="text-3xl font-bold mb-2">{% trans "Welcome to Swasthyam" %}</h2>
+                        <p class="text-green-100">{% trans "Your trusted companion for maternal and child health" %}</p>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-start space-x-3">
+                            <svg class="w-6 h-6 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <div>
+                                <h3 class="font-semibold">{% trans "Context-Aware AI" %}</h3>
+                                <p class="text-sm text-green-100">{% trans "Get personalized health advice based on your profile" %}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start space-x-3">
+                            <svg class="w-6 h-6 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            </svg>
+                            <div>
+                                <h3 class="font-semibold">{% trans "Supportive Community" %}</h3>
+                                <p class="text-sm text-green-100">{% trans "Connect with others on similar health journeys" %}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start space-x-3">
+                            <svg class="w-6 h-6 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                            </svg>
+                            <div>
+                                <h3 class="font-semibold">{% trans "Track & Monitor" %}</h3>
+                                <p class="text-sm text-green-100">{% trans "Keep detailed records of health milestones" %}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Side - Forms -->
+                <div class="p-12">
+                    <!-- Login Form -->
+                    <div id="loginForm" class="transition-all duration-300">
+                        <h3 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">{% trans "Welcome Back" %}</h3>
+                        
+                        <form method="post" class="space-y-4">
+                            {% csrf_token %}
+                            <input type="hidden" name="login_submit" value="1">
+                            
+                            <div>
+                                <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">{% trans "Username" %}</label>
+                                {{ login_form.username }}
+                                {% if login_form.username.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ login_form.username.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">{% trans "Password" %}</label>
+                                {{ login_form.password }}
+                                {% if login_form.password.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ login_form.password.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="flex items-center justify-between text-sm">
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                    <span class="ml-2 text-gray-700 dark:text-gray-300">{% trans "Remember me" %}</span>
+                                </label>
+                                <a href="#" class="text-green-600 hover:text-green-700">{% trans "Forgot password?" %}</a>
+                            </div>
+                            
+                            <button type="submit" class="w-full bg-green-600 text-white py-3 rounded-lg font-medium hover:bg-green-700 transition-colors">
+                                {% trans "Login" %}
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <!-- Signup Form -->
+                    <div id="signupForm" class="hidden transition-all duration-300">
+                        <h3 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">{% trans "Create Account" %}</h3>
+                        
+                        <form method="post" class="space-y-4">
+                            {% csrf_token %}
+                            <input type="hidden" name="register_submit" value="1">
+                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">{% trans "First Name" %}</label>
+                                    {{ register_form.first_name }}
+                                    {% if register_form.first_name.errors %}
+                                        <p class="mt-1 text-sm text-red-600">{{ register_form.first_name.errors.0 }}</p>
+                                    {% endif %}
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">{% trans "Last Name" %}</label>
+                                    {{ register_form.last_name }}
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">{% trans "Username" %}</label>
+                                {{ register_form.username }}
+                                {% if register_form.username.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ register_form.username.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">{% trans "Email" %}</label>
+                                {{ register_form.email }}
+                                {% if register_form.email.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ register_form.email.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">{% trans "Password" %}</label>
+                                {{ register_form.password1 }}
+                                {% if register_form.password1.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ register_form.password1.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">{% trans "Confirm Password" %}</label>
+                                {{ register_form.password2 }}
+                                {% if register_form.password2.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ register_form.password2.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="text-xs text-gray-600 dark:text-gray-400">
+                                {% trans "By signing up, you agree to our Terms of Service and Privacy Policy" %}
+                            </div>
+                            
+                            <button type="submit" class="w-full bg-green-600 text-white py-3 rounded-lg font-medium hover:bg-green-700 transition-colors">
+                                {% trans "Create Account" %}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const loginTab = document.getElementById('loginTab');
+    const signupTab = document.getElementById('signupTab');
+    const loginForm = document.getElementById('loginForm');
+    const signupForm = document.getElementById('signupForm');
+    
+    function showLogin() {
+        loginTab.classList.add('bg-green-600', 'text-white');
+        loginTab.classList.remove('text-gray-700', 'dark:text-gray-300');
+        signupTab.classList.remove('bg-green-600', 'text-white');
+        signupTab.classList.add('text-gray-700', 'dark:text-gray-300');
+        
+        loginForm.classList.remove('hidden');
+        signupForm.classList.add('hidden');
+    }
+    
+    function showSignup() {
+        signupTab.classList.add('bg-green-600', 'text-white');
+        signupTab.classList.remove('text-gray-700', 'dark:text-gray-300');
+        loginTab.classList.remove('bg-green-600', 'text-white');
+        loginTab.classList.add('text-gray-700', 'dark:text-gray-300');
+        
+        signupForm.classList.remove('hidden');
+        loginForm.classList.add('hidden');
+    }
+    
+    loginTab.addEventListener('click', showLogin);
+    signupTab.addEventListener('click', showSignup);
+    
+    // Show signup form if there are signup errors
+    {% if register_form.errors %}
+        showSignup();
+    {% endif %}
+</script>
+{% endblock %}

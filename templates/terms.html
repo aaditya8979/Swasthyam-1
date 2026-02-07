@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Terms of Service - Swasthyam" %}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 py-12">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">{% trans "Terms of Service" %}</h1>
+    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-8">
+        <p class="text-yellow-800 font-bold">⚠️ {% trans "Medical Disclaimer" %}</p>
+        <p class="text-yellow-700 text-sm mt-1">
+            {% trans "Swasthyam is a wellness tool, NOT a doctor. Always consult a professional for medical emergencies." %}
+        </p>
+    </div>
+
+    <div class="prose dark:prose-invert max-w-none space-y-6 text-gray-700 dark:text-gray-300">
+        <p>{% trans "By accessing Swasthyam, you agree to these terms:" %}</p>
+        
+        <ul class="list-disc pl-5 space-y-2">
+            <li><strong>{% trans "User Conduct:" %}</strong> {% trans "Harassment or hate speech in the Community Forum will result in an immediate ban." %}</li>
+            <li><strong>{% trans "Accuracy:" %}</strong> {% trans "You are responsible for the accuracy of the health data (vaccine dates, weight) you input." %}</li>
+            <li><strong>{% trans "Account Security:" %}</strong> {% trans "You are responsible for maintaining the confidentiality of your login credentials." %}</li>
+        </ul>
+
+        <div class="mt-8 pt-8 border-t dark:border-gray-700">
+            <h3 class="font-bold mb-2">{% trans "Contact Us" %}</h3>
+            <p>{% trans "If you have questions about these terms, please contact support@swasthyam.com" %}</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

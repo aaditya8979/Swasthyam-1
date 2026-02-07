@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{% trans "Child Health Tracker" %}</h1>
+        <a href="{% url 'child_tracker:add_child' %}" class="bg-green-600 text-white px-6 py-2 rounded-full font-bold hover:bg-green-700">
+            + {% trans "Add Child" %}
+        </a>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6">
+        {% for child in children %}
+        <a href="{% url 'child_tracker:child_detail' child.id %}" class="block bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm hover:shadow-md transition border border-gray-100 dark:border-gray-700">
+            <div class="flex items-center gap-4">
+                {% if child.photo %}
+                    <img src="{{ child.photo.url }}" class="w-16 h-16 rounded-full object-cover">
+                {% else %}
+                    <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-2xl">👶</div>
+                {% endif %}
+                <div>
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white">{{ child.name }}</h3>
+                    <p class="text-gray-500">{{ child.age_display }} • {{ child.get_gender_display }}</p>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold mb-6 text-teal-600">{% trans "BMI Calculator" %}</h1>
+    
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md mb-8">
+        <form method="POST" class="space-y-4">
+            {% csrf_token %}
+            <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block font-medium mb-1 dark:text-gray-300">{{ form.height.label }}</label>
+                    {{ form.height }}
+                </div>
+                <div>
+                    <label class="block font-medium mb-1 dark:text-gray-300">{{ form.weight.label }}</label>
+                    {{ form.weight }}
+                </div>
+            </div>
+            <button type="submit" class="w-full bg-teal-600 text-white py-3 rounded-lg font-bold hover:bg-teal-700">
+                {% trans "Calculate" %}
+            </button>
+        </form>
+    </div>
+
+    {% if result %}
+    <div class="bg-teal-50 dark:bg-teal-900/30 border-l-4 border-teal-500 p-6 rounded-r-xl mb-8">
+        <h3 class="text-lg font-bold text-teal-800 dark:text-teal-200">{% trans "Your Result" %}</h3>
+        <p class="text-3xl font-bold my-2">{{ result.bmi }}</p>
+        <span class="px-3 py-1 rounded-full text-sm font-bold 
+            {% if result.category == 'Normal weight' %}bg-green-200 text-green-800
+            {% else %}bg-yellow-200 text-yellow-800{% endif %}">
+            {{ result.category }}
+        </span>
+    </div>
+    {% endif %}
+
+    {% if history %}
+    <h3 class="font-bold text-gray-700 dark:text-gray-300 mb-4">{% trans "History" %}</h3>
+    <div class="space-y-2">
+        {% for log in history %}
+        <div class="flex justify-between p-3 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+            <span class="text-gray-600 dark:text-gray-400">{{ log.date }}</span>
+            <span class="font-bold">{{ log.bmi }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

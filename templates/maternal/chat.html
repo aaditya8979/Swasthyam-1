@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "AI Health Assistant" %}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-6 h-[calc(100vh-80px)] flex flex-col">
+    
+    <div class="bg-green-600 dark:bg-green-700 p-4 rounded-t-2xl shadow-md flex justify-between items-center z-10">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-xl text-white">🤖</div>
+            <div>
+                <h2 class="font-bold text-white">{% trans "Swasthyam AI" %}</h2>
+                <p class="text-xs text-green-100 flex items-center gap-1">
+                    <span class="w-2 h-2 bg-green-300 rounded-full animate-pulse"></span>
+                    {% trans "Online & Context-Aware" %}
+                </p>
+            </div>
+        </div>
+        <a href="{% url 'maternal_health:home' %}" class="text-xs bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded transition">
+            ✕ {% trans "Exit" %}
+        </a>
+    </div>
+
+    <div id="chat-box" class="flex-grow bg-white dark:bg-gray-800 border-x border-gray-200 dark:border-gray-700 p-4 overflow-y-auto space-y-6 scroll-smooth">
+        
+        <div class="flex justify-start">
+            <div class="max-w-[85%] bg-gray-100 dark:bg-gray-700 rounded-2xl rounded-tl-none p-4 shadow-sm text-gray-800 dark:text-gray-200">
+                <p>
+                    {% trans "Namaste! I am your personal health assistant." %} 
+                    {% if profile.pregnancy_status == 'pregnant' %}
+                        {% trans "I see you are in week" %} <strong>{{ profile.pregnancy_weeks }}</strong>.
+                    {% endif %}
+                    <br><br>
+                    {% trans "How can I help you today? You can ask about diet, symptoms, or precautions." %}
+                </p>
+            </div>
+        </div>
+
+        {% for chat in chat_history %}
+            <div class="flex justify-end">
+                <div class="max-w-[85%] bg-green-600 text-white rounded-2xl rounded-tr-none p-3 shadow-md">
+                    {{ chat.question }}
+                </div>
+            </div>
+            
+            <div class="flex justify-start">
+                <div class="max-w-[85%] bg-gray-100 dark:bg-gray-700 rounded-2xl rounded-tl-none p-4 shadow-sm text-gray-800 dark:text-gray-200 leading-relaxed">
+                    {{ chat.answer|linebreaksbr }}
+                </div>
+            </div>
+        {% endfor %}
+
+        <div id="loading" class="hidden flex justify-start w-full">
+            <div class="bg-gray-100 dark:bg-gray-700 rounded-2xl rounded-tl-none p-4 shadow-sm flex items-center gap-2">
+                <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-100"></div>
+                <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-200"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 p-4 border border-t-0 border-gray-200 dark:border-gray-700 rounded-b-2xl shadow-lg">
+        <form id="chat-form" class="flex gap-3 relative">
+            {% csrf_token %}
+            <input type="text" id="user-input" 
+                class="flex-grow bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-full px-5 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
+                placeholder="{% trans 'Type your health question here...' %}" autocomplete="off" required>
+            
+            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white rounded-full p-3 w-12 h-12 flex items-center justify-center shadow-md transition transform hover:scale-105">
+                <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+            </button>
+        </form>
+        <p class="text-center text-xs text-gray-400 mt-2">
+            {% trans "AI can make mistakes. Always consult a doctor for medical decisions." %}
+        </p>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const chatBox = document.getElementById('chat-box');
+        const chatForm = document.getElementById('chat-form');
+        const userInput = document.getElementById('user-input');
+        const loading = document.getElementById('loading');
+
+        // Scroll to bottom immediately
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        chatForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            // 1. Display User Message
+            appendMessage(message, 'user');
+            userInput.value = '';
+            
+            // 2. Show Loading & Scroll
+            loading.classList.remove('hidden');
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                // 3. Send API Request
+                const response = await fetch('{% url "maternal_health:chat_api" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({ question: message })
+                });
+
+                const data = await response.json();
+                
+                // 4. Hide Loading & Display AI Response
+                loading.classList.add('hidden');
+                
+                if (data.success) {
+                    appendMessage(data.answer, 'ai');
+                } else {
+                    appendMessage("⚠️ " + (data.error || "Something went wrong."), 'ai');
+                }
+
+            } catch (error) {
+                loading.classList.add('hidden');
+                appendMessage("⚠️ Network error. Please check your connection.", 'ai');
+                console.error(error);
+            }
+        });
+
+        function appendMessage(text, sender) {
+            const div = document.createElement('div');
+            div.className = sender === 'user' ? 'flex justify-end' : 'flex justify-start';
+            
+            const bubble = document.createElement('div');
+            if (sender === 'user') {
+                bubble.className = 'max-w-[85%] bg-green-600 text-white rounded-2xl rounded-tr-none p-3 shadow-md animate-fade-in';
+            } else {
+                bubble.className = 'max-w-[85%] bg-gray-100 dark:bg-gray-700 rounded-2xl rounded-tl-none p-4 shadow-sm text-gray-800 dark:text-gray-200 leading-relaxed animate-fade-in';
+            }
+            
+            // Convert newlines to <br> for AI responses
+            bubble.innerHTML = text.replace(/\n/g, '<br>');
+            
+            div.appendChild(bubble);
+            
+            // Insert before the loading indicator
+            chatBox.insertBefore(div, loading);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    });
+</script>
+
+<style>
+    @keyframes fade-in {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+        animation: fade-in 0.3s ease-out forwards;
+    }
+</style>
+{% endblock %}

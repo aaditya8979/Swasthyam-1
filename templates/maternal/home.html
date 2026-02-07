@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Maternal Health Support" %}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-900/40 dark:to-gray-800 rounded-2xl p-8 mb-8 shadow-sm flex flex-col md:flex-row items-center justify-between">
+        <div class="mb-6 md:mb-0">
+            <h1 class="text-3xl font-bold text-orange-800 dark:text-orange-200 mb-2">
+                {% trans "Maternal Health Companion" %}
+            </h1>
+            <p class="text-orange-700 dark:text-orange-300 max-w-xl">
+                {% trans "Personalized guidance for your pregnancy journey. Ask our AI assistant anything or browse your history." %}
+            </p>
+        </div>
+        <div class="flex flex-col sm:flex-row gap-4">
+            <a href="{% url 'maternal_health:chat' %}" class="flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-full font-bold shadow-md transition transform hover:-translate-y-1">
+                <span>🤖</span> {% trans "Start AI Chat" %}
+            </a>
+            <a href="{% url 'community_forum:create_post' %}?category=maternal-health&is_maternal=true" class="flex items-center justify-center gap-2 bg-pink-500 hover:bg-pink-600 text-white px-8 py-3 rounded-full font-bold shadow-md transition">
+                <span>👥</span> {% trans "Ask Mothers Community" %}
+            </a>
+            <a href="{% url 'maternal_health:chat_history' %}" class="flex items-center justify-center gap-2 bg-white text-orange-600 border-2 border-orange-200 px-8 py-3 rounded-full font-bold shadow-sm hover:bg-orange-50 transition">
+                <span>📜</span> {% trans "View History" %}
+            </a>
+        </div>
+    </div>
+
+    <div class="grid lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2">
+            <h2 class="text-xl font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+                <span>🕒</span> {% trans "Recent Conversations" %}
+            </h2>
+            
+            {% if recent_chats %}
+                <div class="space-y-4">
+                    {% for chat in recent_chats %}
+                    <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-xs font-semibold bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                                {{ chat.created_at|date:"M d, Y" }}
+                            </span>
+                            <span class="text-xs text-gray-400">{{ chat.created_at|time:"H:i" }}</span>
+                        </div>
+                        <h3 class="font-bold text-gray-800 dark:text-gray-200 mb-1">
+                            {{ chat.question|truncatechars:80 }}
+                        </h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                            {{ chat.answer|striptags|truncatechars:120 }}
+                        </p>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="bg-white dark:bg-gray-800 p-8 rounded-xl text-center border-dashed border-2 border-gray-200 dark:border-gray-700">
+                    <div class="text-4xl mb-3">💬</div>
+                    <p class="text-gray-500">{% trans "No conversations yet. Start a chat to get advice!" %}</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <div>
+            <h2 class="text-xl font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+                <span>📚</span> {% trans "Helpful Resources" %}
+            </h2>
+            
+            {% if resources %}
+                <div class="space-y-6">
+                    {% for key, resource in resources.items %}
+                    <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm border-l-4 border-orange-400">
+                        <h3 class="font-bold text-gray-800 dark:text-gray-200 mb-2">{{ resource.title }}</h3>
+                        <ul class="space-y-2">
+                            {% for item in resource.content %}
+                            <li class="text-sm text-gray-600 dark:text-gray-400 flex items-start gap-2">
+                                <span class="text-orange-400 mt-1">•</span>
+                                {{ item }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm">
+                    <p class="text-gray-500 text-sm">{% trans "Resources loading..." %}</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

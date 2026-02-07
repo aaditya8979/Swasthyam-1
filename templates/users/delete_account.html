@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block content %}
+<div class="max-w-md mx-auto px-4 py-20 text-center">
+    <h1 class="text-3xl font-bold text-red-600 mb-4">{% trans "Delete Account" %}</h1>
+    <p class="mb-8 text-gray-600">{% trans "This action is permanent. All your health data will be erased." %}</p>
+    <form method="POST" class="space-y-4">
+        {% csrf_token %}
+        <input type="password" name="password" placeholder="{% trans 'Confirm Password' %}" class="w-full p-3 border rounded" required>
+        <button type="submit" class="w-full bg-red-600 text-white py-3 rounded font-bold">{% trans "Permanently Delete" %}</button>
+    </form>
+    <a href="{% url 'users:profile_edit' %}" class="block mt-4 text-gray-500">{% trans "Cancel" %}</a>
+</div>
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Dashboard" %} - Swasthyam{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900 dark:to-gray-800 rounded-2xl p-8 mb-8 shadow-sm">
+        <div class="flex items-center gap-6">
+            <img src="{{ profile.profile_picture.url }}" class="w-20 h-20 rounded-full object-cover border-4 border-white shadow-sm">
+            <div>
+                <h1 class="text-3xl font-bold text-green-800 dark:text-green-100 mb-1">
+                    {% trans "Namaste," %} {{ profile.full_name }}!
+                </h1>
+                <p class="text-green-700 dark:text-green-300">
+                    {% if profile.pregnancy_status == 'pregnant' %}
+                        {{ profile.pregnancy_weeks }} {% trans "Weeks Pregnant" %} • {% trans "Due:" %} {{ profile.due_date }}
+                    {% else %}
+                        {{ profile.age }} {% trans "Years Old" %} • {{ profile.profession|default:"Member" }}
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <a href="{% url 'maternal_health:chat' %}" class="block bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm hover:shadow-md transition border-l-4 border-green-500">
+            <div class="text-3xl mb-3">🤖</div>
+            <h3 class="font-bold text-lg mb-1">{% trans "AI Assistant" %}</h3>
+            <p class="text-sm text-gray-500">{% trans "Ask health questions" %}</p>
+        </a>
+
+        <a href="{% url 'community_forum:home' %}" class="block bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm hover:shadow-md transition border-l-4 border-blue-500">
+            <div class="text-3xl mb-3">👥</div>
+            <h3 class="font-bold text-lg mb-1">{% trans "Community" %}</h3>
+            <p class="text-sm text-gray-500">{% trans "Join discussions" %}</p>
+        </a>
+
+        <a href="{% url 'child_tracker:home' %}" class="block bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm hover:shadow-md transition border-l-4 border-purple-500">
+            <div class="text-3xl mb-3">👶</div>
+            <h3 class="font-bold text-lg mb-1">{% trans "Child Tracker" %}</h3>
+            <p class="text-sm text-gray-500">{% trans "Vaccines & Growth" %}</p>
+        </a>
+
+        <a href="{% url 'health_calculators:home' %}" class="block bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm hover:shadow-md transition border-l-4 border-orange-500">
+            <div class="text-3xl mb-3">🧮</div>
+            <h3 class="font-bold text-lg mb-1">{% trans "Health Tools" %}</h3>
+            <p class="text-sm text-gray-500">{% trans "BMI, Due Date, etc." %}</p>
+        </a>
+    </div>
+
+    <div class="grid lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+            <h2 class="text-xl font-bold mb-4">{% trans "Recent AI Chats" %}</h2>
+            {% if recent_chats %}
+                <div class="space-y-4">
+                    {% for chat in recent_chats %}
+                    <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <p class="font-semibold text-sm mb-1">{{ chat.question }}</p>
+                        <p class="text-xs text-gray-500">{{ chat.created_at|timesince }} ago</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-gray-500 text-center py-4">{% trans "No recent conversations." %}</p>
+            {% endif %}
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+            <h2 class="text-xl font-bold mb-4">{% trans "Upcoming" %}</h2>
+            {% if milestones %}
+                <div class="space-y-4">
+                    {% for m in milestones %}
+                    <div class="flex items-center gap-4">
+                        <div class="bg-green-100 text-green-700 font-bold w-10 h-10 rounded-full flex items-center justify-center text-xs">
+                            {{ m.week }}w
+                        </div>
+                        <div>
+                            <p class="font-semibold text-sm">{{ m.description }}</p>
+                            <p class="text-xs text-gray-500">{% trans "In" %} {{ m.weeks_until }} {% trans "weeks" %}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-8">
+                    <div class="text-4xl mb-2">📅</div>
+                    <p class="text-gray-500 text-sm">{% trans "Complete your profile to see milestones." %}</p>
+                    <a href="{% url 'users:profile_setup' %}" class="text-green-600 text-sm font-bold hover:underline">{% trans "Update Profile" %}</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

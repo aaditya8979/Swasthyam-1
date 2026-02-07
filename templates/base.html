@@ -1,0 +1,324 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}" class="{{ request.user.profile.dark_mode_enabled|yesno:'dark,light' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{% trans 'Swasthyam - Your community-driven health companion for expecting mothers and families' %}">
+    <meta name="keywords" content="pregnancy, maternal health, child health, health tracking, community support">
+    
+    <title>{% block title %}Swasthyam - {% trans 'Your Health Companion' %}{% endblock %}</title>
+    
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tailwind Config with Custom Theme -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            300: '#86efac',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Custom CSS for smooth transitions -->
+    <style>
+        :root {
+            /* Light Mode Colors */
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9fafb;
+            --text-main: #111827;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+            --accent: #22c55e;
+        }
+        
+        .dark {
+            /* Dark Mode Colors */
+            --bg-primary: #111827;
+            --bg-secondary: #1f2937;
+            --text-main: #f9fafb;
+            --text-secondary: #d1d5db;
+            --border-color: #374151;
+            --accent: #4ade80;
+        }
+        
+        * {
+            transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
+        }
+        
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+        }
+        
+        /* Smooth scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Loading animation */
+        .loader {
+            border-top-color: var(--accent);
+            animation: spinner 1s ease-in-out infinite;
+        }
+        
+        @keyframes spinner {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Profile image styling */
+        .profile-img {
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .profile-img:hover {
+            transform: scale(1.05);
+        }
+        
+        /* Card hover effects */
+        .feature-card {
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body class="min-h-screen">
+    <!-- Navbar -->
+    {% if show_navbar|default:True %}
+    <nav class="bg-white dark:bg-gray-800 shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="{% url 'main:landing' %}" class="flex items-center space-x-2">
+                        <svg class="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5zm0 18c-3.94-1.26-7-5.82-7-10V8.3l7-3.11 7 3.11V10c0 4.18-3.06 8.74-7 10z"/>
+                        </svg>
+                        <span class="text-xl font-bold text-gray-900 dark:text-white">Swasthyam</span>
+                    </a>
+                </div>
+                
+                <!-- Navigation Links -->
+                <div class="hidden md:flex items-center space-x-6">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'main:dashboard' %}" class="text-gray-700 dark:text-gray-200 hover:text-green-600 dark:hover:text-green-400">
+                            {% trans "Dashboard" %}
+                        </a>
+                        <a href="{% url 'maternal_health:home' %}" class="text-gray-700 dark:text-gray-200 hover:text-green-600 dark:hover:text-green-400">
+                            {% trans "Maternal Health" %}
+                        </a>
+                        <a href="{% url 'community_forum:home' %}" class="text-gray-700 dark:text-gray-200 hover:text-green-600 dark:hover:text-green-400">
+                            {% trans "Community" %}
+                        </a>
+                        <a href="{% url 'child_tracker:home' %}" class="text-gray-700 dark:text-gray-200 hover:text-green-600 dark:hover:text-green-400">
+                            {% trans "Child Health" %}
+                        </a>
+                        <a href="{% url 'health_calculators:home' %}" class="text-gray-700 dark:text-gray-200 hover:text-green-600 dark:hover:text-green-400">
+                            {% trans "Calculators" %}
+                        </a>
+                    {% else %}
+                        <a href="{% url 'main:about' %}" class="text-gray-700 dark:text-gray-200 hover:text-green-600">
+                            {% trans "About" %}
+                        </a>
+                    {% endif %}
+                </div>
+                
+                <!-- Right Side Actions -->
+                <div class="flex items-center space-x-4">
+                    <!-- Language Switcher -->
+                    <div class="relative group">
+                        <button class="flex items-center space-x-1 text-gray-700 dark:text-gray-200 hover:text-green-600">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+                            </svg>
+                            <span class="text-sm">{{ LANGUAGE_CODE|upper }}</span>
+                        </button>
+                        
+                        <div class="absolute right-0 mt-2 w-32 bg-white dark:bg-gray-700 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+                            <form action="{% url 'set_language' %}" method="post" class="p-2">
+                                {% csrf_token %}
+                                <input name="next" type="hidden" value="{{ request.path }}">
+                                <button type="submit" name="language" value="en" class="block w-full text-left px-3 py-2 text-sm rounded hover:bg-gray-100 dark:hover:bg-gray-600">
+                                    English
+                                </button>
+                                <button type="submit" name="language" value="hi" class="block w-full text-left px-3 py-2 text-sm rounded hover:bg-gray-100 dark:hover:bg-gray-600">
+                                    हिन्दी
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Dark Mode Toggle -->
+                    <button id="darkModeToggle" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600">
+                        <svg id="sunIcon" class="w-5 h-5 text-yellow-500 hidden dark:block" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"/>
+                        </svg>
+                        <svg id="moonIcon" class="w-5 h-5 text-gray-700 block dark:hidden" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/>
+                        </svg>
+                    </button>
+                    
+                    {% if user.is_authenticated %}
+                        <!-- User Profile Dropdown -->
+                        <div class="relative group">
+                            <button class="flex items-center space-x-2 focus:outline-none">
+                                <img src="{{ user.profile.profile_picture.url }}" alt="{{ user.username }}" class="w-8 h-8 rounded-full profile-img">
+                                <span class="hidden md:block text-sm font-medium text-gray-700 dark:text-gray-200">{{ user.profile.full_name }}</span>
+                            </button>
+                            
+                            <div class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-700 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+                                <div class="p-3 border-b border-gray-200 dark:border-gray-600">
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white">{{ user.profile.full_name }}</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ user.email }}</p>
+                                </div>
+                                <div class="py-2">
+                                    <a href="{% url 'users:profile' %}" class="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600">
+                                        {% trans "My Profile" %}
+                                    </a>
+                                    <a href="{% url 'users:profile_edit' %}" class="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-600">
+                                        {% trans "Settings" %}
+                                    </a>
+                                    <hr class="my-2 border-gray-200 dark:border-gray-600">
+                                    <a href="{% url 'users:logout' %}" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-600">
+                                        {% trans "Logout" %}
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'users:auth' %}" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                            {% trans "Login / Sign Up" %}
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+    
+    <!-- Messages -->
+    {% if messages %}
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+        {% for message in messages %}
+        <div class="mb-4 p-4 rounded-lg {{ message.tags }} flex items-center justify-between" role="alert">
+            <span>{{ message }}</span>
+            <button onclick="this.parentElement.remove()" class="ml-4 text-xl font-bold">&times;</button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <!-- Main Content -->
+    <main class="min-h-[calc(100vh-4rem)]">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-gray-100 dark:bg-gray-900 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-lg font-bold mb-4">Swasthyam</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                        {% trans "Your trusted health companion for maternal and child care." %}
+                    </p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-3">{% trans "Quick Links" %}</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="{% url 'main:about' %}" class="text-gray-600 dark:text-gray-400 hover:text-green-600">{% trans "About Us" %}</a></li>
+                        <li><a href="{% url 'main:privacy' %}" class="text-gray-600 dark:text-gray-400 hover:text-green-600">{% trans "Privacy Policy" %}</a></li>
+                        <li><a href="{% url 'main:terms' %}" class="text-gray-600 dark:text-gray-400 hover:text-green-600">{% trans "Terms of Service" %}</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-3">{% trans "Features" %}</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="{% url 'maternal_health:chat' %}" class="text-gray-600 dark:text-gray-400 hover:text-green-600">{% trans "AI Health Assistant" %}</a></li>
+                        <li><a href="{% url 'community_forum:home' %}" class="text-gray-600 dark:text-gray-400 hover:text-green-600">{% trans "Community Forum" %}</a></li>
+                        <li><a href="{% url 'child_tracker:home' %}" class="text-gray-600 dark:text-gray-400 hover:text-green-600">{% trans "Child Tracker" %}</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-3">{% trans "Contact" %}</h4>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                        Email: support@swasthyam.com<br>
+                        {% trans "We're here to help!" %}
+                    </p>
+                </div>
+            </div>
+            <div class="border-t border-gray-300 dark:border-gray-700 mt-8 pt-6 text-center text-sm text-gray-600 dark:text-gray-400">
+                <p>&copy; 2026 Swasthyam. {% trans "All rights reserved." %}</p>
+                <p class="mt-2 text-xs">
+                    <strong>{% trans "Medical Disclaimer:" %}</strong> {% trans "Swasthyam provides health information and is not a substitute for professional medical advice. Always consult healthcare professionals for medical decisions." %}
+                </p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Dark Mode Toggle Script -->
+    <script>
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const html = document.documentElement;
+        
+        darkModeToggle?.addEventListener('click', async () => {
+            html.classList.toggle('dark');
+            
+            // Save preference to server if user is authenticated
+            {% if user.is_authenticated %}
+            try {
+                const response = await fetch('{% url "users:toggle_dark_mode" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                });
+                const data = await response.json();
+                console.log('Dark mode toggled:', data.dark_mode_enabled);
+            } catch (error) {
+                console.error('Error toggling dark mode:', error);
+            }
+            {% else %}
+            // Save to localStorage for non-authenticated users
+            localStorage.setItem('darkMode', html.classList.contains('dark'));
+            {% endif %}
+        });
+        
+        // Load dark mode preference for non-authenticated users
+        {% if not user.is_authenticated %}
+        if (localStorage.getItem('darkMode') === 'true') {
+            html.classList.add('dark');
+        }
+        {% endif %}
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

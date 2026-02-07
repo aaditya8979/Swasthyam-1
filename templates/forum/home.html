@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Community Forum" %}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{% trans "Community Forum" %}</h1>
+        <a href="{% url 'community_forum:create_post' %}" class="bg-green-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-green-700 transition">
+            + {% trans "New Post" %}
+        </a>
+    </div>
+
+    <div class="grid lg:grid-cols-4 gap-8">
+        <div class="lg:col-span-1 space-y-4">
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm">
+                <h3 class="font-bold text-gray-700 dark:text-gray-200 mb-4">{% trans "Categories" %}</h3>
+                <ul class="space-y-2">
+                    <li>
+                        <a href="{% url 'community_forum:home' %}" class="block px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-green-600 font-medium">
+                            🌍 {% trans "All Posts" %}
+                        </a>
+                    </li>
+                    {% for cat in categories %}
+                    <li>
+                        <a href="{% url 'community_forum:category' cat.slug %}" class="block px-3 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300">
+                            {{ cat.icon }} {{ cat.name }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+            <a href="{% url 'community_forum:my_bookmarks' %}" class="block bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm text-center font-bold text-gray-700 dark:text-gray-200 hover:text-green-600">
+                🔖 {% trans "My Bookmarks" %}
+            </a>
+        </div>
+
+        <div class="lg:col-span-3 space-y-6">
+            <form method="GET" class="flex gap-2">
+                <input type="text" name="q" placeholder="{% trans 'Search discussions...' %}" value="{{ query|default:'' }}" class="flex-grow px-4 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600">
+                <button type="submit" class="bg-gray-200 dark:bg-gray-600 px-4 py-2 rounded-lg">🔍</button>
+            </form>
+
+            {% for post in posts %}
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm hover:shadow-md transition">
+                <div class="flex justify-between items-start mb-2">
+                    <span class="text-sm text-green-600 font-bold">{{ post.category.name|default:"General" }}</span>
+                    <span class="text-xs text-gray-500">{{ post.created_at|timesince }} ago</span>
+                </div>
+                <h2 class="text-xl font-bold mb-2">
+                    <a href="{% url 'community_forum:post_detail' post.slug %}" class="text-gray-900 dark:text-white hover:text-green-600">
+                        {{ post.title }}
+                    </a>
+                </h2>
+                <p class="text-gray-600 dark:text-gray-400 mb-4">{{ post.content|truncatewords:30 }}</p>
+                
+                <div class="flex items-center gap-4 text-sm text-gray-500">
+                    <span class="flex items-center gap-1">👤 {{ post.author.username }}</span>
+                    <span class="flex items-center gap-1">❤️ {{ post.like_count }}</span>
+                    <span class="flex items-center gap-1">💬 {{ post.comment_count }}</span>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center py-12">
+                <p class="text-gray-500">{% trans "No posts found. Be the first to start a discussion!" %}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

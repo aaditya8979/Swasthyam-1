@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8 text-gray-800 dark:text-white">{% trans "Health Tools & Calculators" %}</h1>
+    
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <a href="{% url 'health_calculators:bmi' %}" class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm hover:shadow-md transition border-l-4 border-teal-500">
+            <div class="text-3xl mb-3">⚖️</div>
+            <h3 class="font-bold text-xl mb-2 text-gray-900 dark:text-white">{% trans "BMI Calculator" %}</h3>
+            <p class="text-gray-600 dark:text-gray-400">{% trans "Check your Body Mass Index and track weight." %}</p>
+        </a>
+
+        <a href="{% url 'health_calculators:nutrition' %}" class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm hover:shadow-md transition border-l-4 border-green-500">
+            <div class="text-3xl mb-3">🍎</div>
+            <h3 class="font-bold text-xl mb-2 text-gray-900 dark:text-white">{% trans "Nutrition Tracker" %}</h3>
+            <p class="text-gray-600 dark:text-gray-400">{% trans "Log daily meals, calories, and macronutrients." %}</p>
+        </a>
+
+        <a href="{% url 'health_calculators:due_date' %}" class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm hover:shadow-md transition border-l-4 border-pink-500">
+            <div class="text-3xl mb-3">🗓️</div>
+            <h3 class="font-bold text-xl mb-2 text-gray-900 dark:text-white">{% trans "Pregnancy Due Date" %}</h3>
+            <p class="text-gray-600 dark:text-gray-400">{% trans "Calculate your expected delivery date." %}</p>
+        </a>
+
+        <a href="{% url 'health_calculators:ovulation' %}" class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm hover:shadow-md transition border-l-4 border-purple-500">
+            <div class="text-3xl mb-3">🌸</div>
+            <h3 class="font-bold text-xl mb-2 text-gray-900 dark:text-white">{% trans "Ovulation Calculator" %}</h3>
+            <p class="text-gray-600 dark:text-gray-400">{% trans "Find your most fertile days." %}</p>
+        </a>
+
+        <a href="{% url 'health_calculators:pregnancy_weight' %}" class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm hover:shadow-md transition border-l-4 border-orange-500">
+            <div class="text-3xl mb-3">🤰</div>
+            <h3 class="font-bold text-xl mb-2 text-gray-900 dark:text-white">{% trans "Pregnancy Weight" %}</h3>
+            <p class="text-gray-600 dark:text-gray-400">{% trans "Track healthy weight gain during pregnancy." %}</p>
+        </a>
+    </div>
+</div>
+{% endblock %}

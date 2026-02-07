@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Complete Your Profile" %}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 py-12">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
+        <div class="bg-green-600 px-8 py-6">
+            <h1 class="text-2xl font-bold text-white">{% trans "Complete Your Profile" %}</h1>
+            <p class="text-green-100 mt-2">{% trans "Help us personalize your health journey." %}</p>
+        </div>
+        
+        <form method="POST" enctype="multipart/form-data" class="p-8 space-y-6">
+            {% csrf_token %}
+            
+            <div class="flex items-center gap-6">
+                {% if user.profile.profile_picture %}
+                    <img src="{{ user.profile.profile_picture.url }}" class="w-20 h-20 rounded-full object-cover border-2 border-green-500">
+                {% else %}
+                    <div class="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center text-3xl">👤</div>
+                {% endif %}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{% trans "Profile Photo" %}</label>
+                    {{ form.profile_picture }}
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium mb-1">{% trans "Age" %}</label>
+                    {{ form.age }}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">{% trans "Gender" %}</label>
+                    {{ form.gender }}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">{% trans "Height (cm)" %}</label>
+                    {{ form.height }}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">{% trans "Weight (kg)" %}</label>
+                    {{ form.weight }}
+                </div>
+            </div>
+
+            <hr class="border-gray-200 dark:border-gray-700">
+
+            <div>
+                <h3 class="text-lg font-semibold text-green-700 dark:text-green-400 mb-4">{% trans "Maternal Health Details" %}</h3>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium mb-1">{% trans "Status" %}</label>
+                        {{ form.pregnancy_status }}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">{% trans "Weeks Pregnant" %}</label>
+                        {{ form.pregnancy_weeks }}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">{% trans "Due Date" %}</label>
+                        {{ form.due_date }}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-1">{% trans "Children" %}</label>
+                        {{ form.number_of_children }}
+                    </div>
+                </div>
+            </div>
+
+            <hr class="border-gray-200 dark:border-gray-700">
+
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                <div class="flex">
+                    <div class="ml-3">
+                        <p class="text-sm text-yellow-700">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" name="accept_disclaimer" required class="rounded text-green-600 focus:ring-green-500">
+                                <span class="font-bold">{% trans "I accept the Medical Disclaimer" %}</span>
+                            </label>
+                        </p>
+                        <p class="text-xs text-yellow-600 mt-1">
+                            {% trans "Swasthyam is not a substitute for professional medical advice." %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end">
+                <button type="submit" class="bg-green-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-green-700 transition shadow-md">
+                    {% trans "Save & Continue" %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold mb-6 text-pink-600">{% trans "Pregnancy Due Date Calculator" %}</h1>
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md mb-8">
+        <form method="POST" class="space-y-4">
+            {% csrf_token %}
+            <div>
+                <label class="block font-medium mb-1 dark:text-gray-300">{{ form.last_period_date.label }}</label>
+                {{ form.last_period_date }}
+            </div>
+            <div>
+                <label class="block font-medium mb-1 dark:text-gray-300">{{ form.cycle_length.label }}</label>
+                {{ form.cycle_length }}
+            </div>
+            <button type="submit" class="w-full bg-pink-500 text-white py-3 rounded-lg font-bold hover:bg-pink-600">{% trans "Calculate" %}</button>
+        </form>
+    </div>
+    {% if result %}
+    <div class="bg-pink-50 dark:bg-pink-900/20 p-6 rounded-xl border-l-4 border-pink-500">
+        <h3 class="font-bold text-pink-800 dark:text-pink-200">{% trans "Estimated Due Date:" %}</h3>
+        <p class="text-3xl font-bold my-2">{{ result.edd }}</p>
+        <p class="text-sm text-gray-600 dark:text-gray-300">{% trans "Trimester 1 Ends:" %} {{ result.trimester_1_end }}</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

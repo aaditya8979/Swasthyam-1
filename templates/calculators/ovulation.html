@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold mb-6 text-purple-600">{% trans "Ovulation Calculator" %}</h1>
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md mb-8">
+        <form method="POST" class="space-y-4">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="w-full bg-purple-600 text-white py-3 rounded-lg font-bold hover:bg-purple-700">{% trans "Calculate Window" %}</button>
+        </form>
+    </div>
+    {% if result %}
+    <div class="bg-purple-50 dark:bg-purple-900/20 p-6 rounded-xl border-l-4 border-purple-500">
+        <h3 class="font-bold text-purple-800 dark:text-purple-200">{% trans "Most Fertile Day:" %}</h3>
+        <p class="text-3xl font-bold my-2">{{ result.ovulation }}</p>
+        <p class="text-sm text-gray-600 dark:text-gray-300">{% trans "Fertile Window:" %} {{ result.fertile_start }} - {{ result.fertile_end }}</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "About Us - Swasthyam" %}{% endblock %}
+
+{% block content %}
+<div class="bg-green-600 dark:bg-green-900 text-white py-20 px-4 text-center">
+    <h1 class="text-4xl md:text-5xl font-bold mb-4">{% trans "Empowering Healthier Families" %}</h1>
+    <p class="text-xl text-green-100 max-w-2xl mx-auto">
+        {% trans "Bridging the gap between professional medical data and community support." %}
+    </p>
+</div>
+
+<div class="max-w-5xl mx-auto px-4 py-16">
+    <div class="grid md:grid-cols-2 gap-12 items-center mb-20">
+        <div>
+            <h2 class="text-3xl font-bold text-green-800 dark:text-green-400 mb-6">{% trans "Our Mission" %}</h2>
+            <p class="text-gray-600 dark:text-gray-300 text-lg leading-relaxed mb-4">
+                {% trans "Swasthyam was built to provide expecting mothers and parents with a safe, reliable, and supportive environment. We believe that health tracking shouldn't be anxiety-inducing." %}
+            </p>
+            <p class="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">
+                {% trans "By combining AI-driven advice with real community interactions, we ensure no parent ever feels alone on their journey." %}
+            </p>
+        </div>
+        <div class="bg-green-100 dark:bg-gray-800 rounded-2xl p-8 flex items-center justify-center h-64 shadow-inner">
+            <span class="text-9xl">🌿</span>
+        </div>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-8 text-center">
+        <div class="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md border-t-4 border-green-500">
+            <div class="text-4xl mb-4">🛡️</div>
+            <h3 class="text-xl font-bold mb-2">{% trans "Privacy First" %}</h3>
+            <p class="text-gray-500 dark:text-gray-400">{% trans "Your health data is encrypted and securely stored. We never sell your personal information." %}</p>
+        </div>
+        <div class="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md border-t-4 border-blue-500">
+            <div class="text-4xl mb-4">🤝</div>
+            <h3 class="text-xl font-bold mb-2">{% trans "Community Led" %}</h3>
+            <p class="text-gray-500 dark:text-gray-400">{% trans "Real advice from real parents, moderated to ensure safety and support." %}</p>
+        </div>
+        <div class="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md border-t-4 border-purple-500">
+            <div class="text-4xl mb-4">🤖</div>
+            <h3 class="text-xl font-bold mb-2">{% trans "AI Powered" %}</h3>
+            <p class="text-gray-500 dark:text-gray-400">{% trans "Context-aware AI that knows your specific pregnancy week or child's age." %}</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

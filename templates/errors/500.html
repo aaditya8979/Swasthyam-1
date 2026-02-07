@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Server Error - Swasthyam" %}{% endblock %}
+
+{% block content %}
+<div class="min-h-[70vh] flex flex-col items-center justify-center text-center px-4 bg-red-50 dark:bg-gray-900 transition-colors duration-300">
+    <div class="bg-white dark:bg-gray-800 p-10 rounded-2xl shadow-xl max-w-lg w-full border border-red-100 dark:border-gray-700">
+        <div class="text-8xl mb-6">🩺</div>
+        
+        <h1 class="text-4xl font-bold text-red-700 dark:text-red-400 mb-4">
+            {% trans "500: System Error" %}
+        </h1>
+        
+        <p class="text-gray-600 dark:text-gray-300 mb-8 text-lg">
+            {% trans "Something went wrong on our end. Our medical team (developers) has been notified and is fixing it right now." %}
+        </p>
+        
+        <a href="{% url 'main:dashboard' %}" class="inline-block bg-green-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-green-700 transition shadow-md">
+            {% trans "Reload Dashboard" %}
+        </a>
+    </div>
+</div>
+{% endblock %}
