@@ -1,0 +1,21 @@
+/* ===== DARK MODE FORM FIX (Swasthyam) ===== */
+
+input,
+textarea,
+select {
+    background-color: #ffffff;
+    color: #111827;
+}
+
+.dark input,
+.dark textarea,
+.dark select {
+    background-color: #1f2937 !important; /* gray-800 */
+    color: #f9fafb !important;            /* gray-50 */
+    border-color: #4b5563;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+    color: #9ca3af;
+}

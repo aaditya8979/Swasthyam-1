@@ -14,4 +14,5 @@ urlpatterns = [
     path('due-date/', views.due_date_calculator, name='due_date'),
     path('ovulation/', views.ovulation_calculator, name='ovulation'),
     path('nutrition/', views.nutrition_tracker, name='nutrition'),
+
 ]

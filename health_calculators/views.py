@@ -89,41 +89,31 @@ def ovulation_calculator(request):
     return render(request, 'calculators/ovulation.html', {'form': form, 'result': result})
 
 @login_required
+
+
 def pregnancy_weight_calculator(request):
-    result = None
-    form = PregnancyWeightForm(request.POST or None)
-    
-    if request.method == 'POST' and form.is_valid():
-        pre_w = form.cleaned_data['pre_pregnancy_weight']
-        curr_w = form.cleaned_data['current_weight']
-        h = form.cleaned_data['height'] / 100
-        week = form.cleaned_data['week']
-        
-        bmi = pre_w / (h ** 2)
-        gained = curr_w - pre_w
-        
-        # IOM Guidelines (Simplified)
-        if bmi < 18.5: min_g, max_g = 12.5, 18
-        elif bmi < 25: min_g, max_g = 11.5, 16
-        elif bmi < 30: min_g, max_g = 7, 11.5
-        else: min_g, max_g = 5, 9
-        
-        # Expected gain at current week (rough estimate)
-        expected_min = (min_g / 40) * week
-        expected_max = (max_g / 40) * week
-        
-        status = "On Track"
-        if gained < expected_min: status = "Below Recommended"
-        elif gained > expected_max: status = "Above Recommended"
-        
-        result = {
-            'gained': round(gained, 1),
-            'recommended_range': f"{round(expected_min, 1)} - {round(expected_max, 1)} kg",
-            'status': status,
-            'total_target': f"{min_g} - {max_g} kg"
-        }
-        
-    return render(request, 'calculators/pregnancy_weight.html', {'form': form, 'result': result})
+    context = {}
+
+    if request.method == "POST":
+        pre_weight = float(request.POST.get("pre_weight"))
+        current_weight = float(request.POST.get("current_weight"))
+        week = int(request.POST.get("week"))
+
+        weight_gain = round(current_weight - pre_weight, 2)
+
+        if weight_gain < 0:
+            message = "Weight loss during pregnancy should be discussed with a doctor."
+        elif weight_gain <= (week * 0.5):
+            message = "Your weight gain is within a healthy range."
+        else:
+            message = "Your weight gain is higher than expected. Consider consulting a doctor."
+
+        context.update({
+            "weight_gain": weight_gain,
+            "message": message
+        })
+
+    return render(request, "calculators/pregnancy_weight.html", context)
 
 @login_required
 def nutrition_tracker(request):

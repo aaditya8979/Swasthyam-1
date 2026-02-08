@@ -1,13 +1,42 @@
 {% extends 'base.html' %}
 {% load i18n %}
+{% load static %}
 
 {% block content %}
 <div class="max-w-2xl mx-auto px-4 py-8">
     <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-8">
         <h1 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">{% trans "Edit Profile" %}</h1>
-        
+
         <form method="POST" enctype="multipart/form-data" class="space-y-6">
             {% csrf_token %}
+
+<h3 class="text-lg font-semibold mt-6 mb-2">Choose an Avatar</h3>
+
+<div class="grid grid-cols-4 gap-4">
+    {% for value, label in profile.AVATAR_CHOICES %}
+    <label class="cursor-pointer text-center">
+        <input
+            type="radio"
+            name="avatar"
+            value="{{ value }}"
+            {% if profile.avatar == value %}checked{% endif %}
+            class="hidden"
+        >
+        <img
+            src="{% static 'avatars/'|add:value|add:'.png' %}"
+            class="w-20 h-20 rounded-full border-4
+            {% if profile.avatar == value %}
+                border-green-500
+            {% else %}
+                border-transparent
+            {% endif %}"
+        >
+        <p class="text-sm mt-1">{{ label }}</p>
+    </label>
+    {% endfor %}
+</div>
+
+
             
             <div class="flex items-center gap-6 mb-6">
                 {% if user.profile.profile_picture %}
@@ -32,7 +61,7 @@
                 </div>
                 </div>
             
-            {{ form.as_p }} <button type="submit" class="w-full bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700 transition">
+             <button type="submit" class="w-full bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700 transition">
                 {% trans "Save Changes" %}
             </button>
         </form>
