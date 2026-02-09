@@ -39,3 +39,11 @@ handler500 = 'main.views.error_500'
 admin.site.site_header = "Swasthyam Administration"
 admin.site.site_title = "Swasthyam Admin"
 admin.site.index_title = "Health Data Management"
+
+
+
+from django.conf import settings
+from django.conf.urls.static import static
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
