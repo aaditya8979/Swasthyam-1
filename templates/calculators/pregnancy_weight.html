@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="calculator-container">
+    <h1>Pregnancy Weight Calculator</h1>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <label>Pre-pregnancy Weight (kg)</label>
+        <input type="number" step="0.1" name="pre_weight" required>
+
+        <label>Current Weight (kg)</label>
+        <input type="number" step="0.1" name="current_weight" required>
+
+        <label>Pregnancy Week</label>
+        <input type="number" name="week" min="1" max="42" required>
+
+        <button type="submit" class="btn-primary">
+            Calculate
+        </button>
+    </form>
+
+    {% if weight_gain %}
+        <div class="result-box">
+            <h3>Weight Gained: {{ weight_gain }} kg</h3>
+            <p>{{ message }}</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

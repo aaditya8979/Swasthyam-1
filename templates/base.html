@@ -1,5 +1,6 @@
 {% load static %}
 {% load i18n %}
+
 <!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE }}" class="{{ request.user.profile.dark_mode_enabled|yesno:'dark,light' }}">
 <head>
@@ -7,7 +8,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="{% trans 'Swasthyam - Your community-driven health companion for expecting mothers and families' %}">
     <meta name="keywords" content="pregnancy, maternal health, child health, health tracking, community support">
-    
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+
     <title>{% block title %}Swasthyam - {% trans 'Your Health Companion' %}{% endblock %}</title>
     
     <!-- Tailwind CSS via CDN -->

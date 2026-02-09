@@ -23,7 +23,19 @@ class UserProfile(models.Model):
         ('O', _('Other')),
         ('N', _('Prefer not to say')),
     ]
-    
+    AVATAR_CHOICES = [
+        ('avatar1', 'Avatar 1'),
+        ('avatar2', 'Avatar 2'),
+        ('avatar3', 'Avatar 3'),
+    ]
+
+    avatar = models.CharField(
+        max_length=20,
+        choices=AVATAR_CHOICES,
+        blank=True,
+        null=True
+    )
+
     PREGNANCY_STATUS_CHOICES = [
         ('not_pregnant', _('Not Pregnant')),
         ('pregnant', _('Pregnant')),
@@ -80,12 +92,14 @@ class UserProfile(models.Model):
     number_of_children = models.PositiveIntegerField(default=0)
     
     # Profile Picture
+
     profile_picture = models.ImageField(
         upload_to='profile_pictures/',
         default='profile_pictures/default.png',
-        blank=True
+        blank=True,
+        null=True
     )
-    
+
     # Preferences
     preferred_language = models.CharField(max_length=5, default='en', choices=[('en', 'English'), ('hi', 'Hindi')])
     dark_mode_enabled = models.BooleanField(default=False)
@@ -157,23 +171,32 @@ class UserProfile(models.Model):
         ]
         filled = sum(1 for field in fields if field)
         return round((filled / len(fields)) * 100)
-    
+
+    @property
+
+    def display_profile_image(self):
+        if self.profile_picture and self.profile_picture.name != 'profile_pictures/default.png':
+            return self.profile_picture.url
+        if self.avatar:
+            return f"/static/avatars/{self.avatar}.png"
+        return "/static/avatars/default.png"
+
     def save(self, *args, **kwargs):
-        """Override save to resize profile pictures"""
         super().save(*args, **kwargs)
-        
-        # Resize profile picture to save space
-        if self.profile_picture and os.path.exists(self.profile_picture.path):
+
+        # Resize only USER-UPLOADED images (not default)
+        if (
+                self.profile_picture
+                and self.profile_picture.name != 'profile_pictures/default.png'
+                and os.path.exists(self.profile_picture.path)
+        ):
             img = Image.open(self.profile_picture.path)
-            
-            # Convert RGBA to RGB if necessary
-            if img.mode == 'RGBA':
+
+            if img.mode in ('RGBA', 'P'):
                 img = img.convert('RGB')
-            
-            # Resize if larger than 400x400
+
             if img.height > 400 or img.width > 400:
-                output_size = (400, 400)
-                img.thumbnail(output_size, Image.Resampling.LANCZOS)
+                img.thumbnail((400, 400), Image.Resampling.LANCZOS)
                 img.save(self.profile_picture.path, quality=85, optimize=True)
 
 
