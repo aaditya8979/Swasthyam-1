@@ -31,18 +31,27 @@ def dashboard_view(request):
 
     profile = request.user.profile
     
-    # Get recent activity (Use getattr to avoid crash if app not migrated yet)
-    recent_chats = getattr(request.user, 'chat_history', None)
-    if recent_chats:
-        recent_chats = recent_chats.order_by('-created_at')[:5]
-        
+    # --- FIX: Logic to handle Chat History safely ---
+    # 1. Get the FULL QuerySet first (do not slice yet)
+    all_chats = getattr(request.user, 'chat_history', None)
+    
+    # 2. Calculate stats on the full dataset
+    total_chats = 0
+    helpful_chats = 0
+    recent_chats = []
+
+    if all_chats:
+        total_chats = all_chats.count()
+        # Filter is allowed here because all_chats is not sliced
+        helpful_chats = all_chats.filter(helpful=True).count()
+        # 3. NOW slice the list for the dashboard display
+        recent_chats = all_chats.order_by('-created_at')[:5]
+
+    # --- End Fix ---
+
     recent_posts = getattr(request.user, 'posts', None)
     if recent_posts:
         recent_posts = recent_posts.order_by('-created_at')[:5]
-    
-    # Calculate stats
-    total_chats = recent_chats.count() if recent_chats else 0
-    helpful_chats = recent_chats.filter(helpful=True).count() if recent_chats else 0
     
     # Get upcoming milestones for pregnant users
     milestones = []
