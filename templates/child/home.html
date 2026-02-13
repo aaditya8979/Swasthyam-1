@@ -1,31 +1,54 @@
 {% extends 'base.html' %}
-{% load i18n %}
-
 {% block content %}
-<div class="max-w-4xl mx-auto px-4 py-8">
+<div class="max-w-7xl mx-auto px-4 py-8">
     <div class="flex justify-between items-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{% trans "Child Health Tracker" %}</h1>
-        <a href="{% url 'child_tracker:add_child' %}" class="bg-green-600 text-white px-6 py-2 rounded-full font-bold hover:bg-green-700">
-            + {% trans "Add Child" %}
+        <h1 class="text-3xl font-bold text-gray-800">👶 Child Tracker</h1>
+        <a href="{% url 'child_tracker:add_child' %}" class="bg-green-600 text-white px-6 py-2 rounded-full hover:bg-green-700 shadow-lg">
+            + Add Child
         </a>
     </div>
 
-    <div class="grid md:grid-cols-2 gap-6">
-        {% for child in children %}
-        <a href="{% url 'child_tracker:child_detail' child.id %}" class="block bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm hover:shadow-md transition border border-gray-100 dark:border-gray-700">
-            <div class="flex items-center gap-4">
-                {% if child.photo %}
-                    <img src="{{ child.photo.url }}" class="w-16 h-16 rounded-full object-cover">
-                {% else %}
-                    <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-2xl">👶</div>
-                {% endif %}
-                <div>
-                    <h3 class="text-xl font-bold text-gray-800 dark:text-white">{{ child.name }}</h3>
-                    <p class="text-gray-500">{{ child.age_display }} • {{ child.get_gender_display }}</p>
+    {% if children_data %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for data in children_data %}
+        <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition duration-300">
+            <div class="p-6">
+                <div class="flex items-center gap-4 mb-4">
+                    {% if data.child.photo %}
+                        <img src="{{ data.child.photo.url }}" class="w-16 h-16 rounded-full object-cover">
+                    {% else %}
+                        <div class="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center text-2xl">
+                            {% if data.child.gender == 'F' %}👧{% else %}👦{% endif %}
+                        </div>
+                    {% endif %}
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-900">{{ data.child.name }}</h2>
+                        <p class="text-sm text-gray-500">{{ data.child.age_display }}</p>
+                    </div>
                 </div>
+
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="bg-blue-50 p-3 rounded-lg text-center">
+                        <span class="block text-2xl font-bold text-blue-600">{{ data.pending_vaccines }}</span>
+                        <span class="text-xs text-blue-600 uppercase font-semibold">Vaccines Due</span>
+                    </div>
+                    <div class="bg-purple-50 p-3 rounded-lg text-center">
+                        <span class="block text-2xl font-bold text-purple-600">{{ data.total_memories }}</span>
+                        <span class="text-xs text-purple-600 uppercase font-semibold">Memories</span>
+                    </div>
+                </div>
+
+                <a href="{% url 'child_tracker:child_detail' data.child.id %}" class="block w-full bg-gray-900 text-white text-center py-3 rounded-lg font-medium hover:bg-gray-800">
+                    View Dashboard
+                </a>
             </div>
-        </a>
+        </div>
         {% endfor %}
     </div>
+    {% else %}
+    <div class="text-center py-20 bg-white rounded-xl">
+        <p class="text-xl text-gray-500">No children added yet.</p>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold">📸 {{ child.name }}'s Gallery</h1>
+        <a href="{% url 'child_tracker:add_memory' child.id %}" class="bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700">
+            + Upload
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {% for memory in memories %}
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden group">
+            <div class="aspect-square bg-gray-100 relative">
+                {% if memory.media_type == 'photo' %}
+                    <img src="{{ memory.file.url }}" class="w-full h-full object-cover">
+                {% else %}
+                    <video controls class="w-full h-full object-cover">
+                        <source src="{{ memory.file.url }}">
+                    </video>
+                {% endif %}
+            </div>
+            <div class="p-4">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="font-bold text-gray-900">{{ memory.title|default:"Memory" }}</h3>
+                        <p class="text-xs text-gray-500">{{ memory.memory_date }}</p>
+                    </div>
+                    {% if memory.is_favorite %}
+                        <span class="text-red-500">❤️</span>
+                    {% endif %}
+                </div>
+                <p class="text-sm text-gray-600 mt-2 line-clamp-2">{{ memory.description }}</p>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full text-center py-20">
+            <p class="text-xl text-gray-500">Start capturing memories!</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

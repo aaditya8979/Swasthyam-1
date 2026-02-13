@@ -1,91 +1,183 @@
 {% extends 'base.html' %}
 {% load i18n %}
 
-{% block title %}{% trans "Maternal Health Support" %}{% endblock %}
+{% block title %}{% trans "Maternal Health Dashboard" %}{% endblock %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 py-8">
-    <div class="bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-900/40 dark:to-gray-800 rounded-2xl p-8 mb-8 shadow-sm flex flex-col md:flex-row items-center justify-between">
-        <div class="mb-6 md:mb-0">
-            <h1 class="text-3xl font-bold text-orange-800 dark:text-orange-200 mb-2">
-                {% trans "Maternal Health Companion" %}
+    
+    <div class="bg-gradient-to-r from-pink-500 to-rose-500 rounded-2xl shadow-lg p-8 mb-8 text-white relative overflow-hidden">
+        <div class="relative z-10">
+            <h1 class="text-3xl font-bold mb-2">
+                {% trans "Namaste," %} {{ profile.user.first_name|default:profile.user.username }}! 🌸
             </h1>
-            <p class="text-orange-700 dark:text-orange-300 max-w-xl">
-                {% trans "Personalized guidance for your pregnancy journey. Ask our AI assistant anything or browse your history." %}
+            <p class="text-pink-100 text-lg">
+                {% if profile.pregnancy_status == 'pregnant' %}
+                    {% trans "Week" %} {{ profile.pregnancy_weeks|default:"--" }} • {% trans "Trimester" %} {{ profile.pregnancy_trimester|default:"--" }}
+                {% else %}
+                    {% trans "Your Maternal Health Companion" %}
+                {% endif %}
             </p>
         </div>
-        <div class="flex flex-col sm:flex-row gap-4">
-            <a href="{% url 'maternal_health:chat' %}" class="flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-full font-bold shadow-md transition transform hover:-translate-y-1">
-                <span>🤖</span> {% trans "Start AI Chat" %}
-            </a>
-            <a href="{% url 'community_forum:create_post' %}?category=maternal-health&is_maternal=true" class="flex items-center justify-center gap-2 bg-pink-500 hover:bg-pink-600 text-white px-8 py-3 rounded-full font-bold shadow-md transition">
-                <span>👥</span> {% trans "Ask Mothers Community" %}
-            </a>
-            <a href="{% url 'maternal_health:chat_history' %}" class="flex items-center justify-center gap-2 bg-white text-orange-600 border-2 border-orange-200 px-8 py-3 rounded-full font-bold shadow-sm hover:bg-orange-50 transition">
-                <span>📜</span> {% trans "View History" %}
-            </a>
-        </div>
+        <div class="absolute right-0 top-0 h-64 w-64 bg-white opacity-10 rounded-full -mr-16 -mt-16 transform rotate-45"></div>
     </div>
 
-    <div class="grid lg:grid-cols-3 gap-8">
-        <div class="lg:col-span-2">
-            <h2 class="text-xl font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
-                <span>🕒</span> {% trans "Recent Conversations" %}
-            </h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        
+        <a href="{% url 'maternal_health:chat' %}" class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm hover:shadow-md transition border-l-4 border-orange-500 group">
+            <div class="flex justify-between items-start mb-4">
+                <div class="p-3 bg-orange-100 dark:bg-orange-900 rounded-lg group-hover:bg-orange-200 transition">
+                    <span class="text-2xl">🤖</span>
+                </div>
+                <span class="bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded-full">{% trans "Active" %}</span>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-1">{% trans "AI Assistant" %}</h3>
+            <p class="text-gray-500 dark:text-gray-400 text-sm">{% trans "Ask about symptoms, diet, and care." %}</p>
+        </a>
+
+        <a href="{% url 'maternal_health:medical_vault' %}" class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm hover:shadow-md transition border-l-4 border-purple-500 group">
+            <div class="flex justify-between items-start mb-4">
+                <div class="p-3 bg-purple-100 dark:bg-purple-900 rounded-lg group-hover:bg-purple-200 transition">
+                    <span class="text-2xl">📂</span>
+                </div>
+                <span class="bg-purple-100 text-purple-800 text-xs font-bold px-2 py-1 rounded-full">{{ total_records|default:"0" }} {% trans "Files" %}</span>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-1">{% trans "Medical Vault" %}</h3>
+            <p class="text-gray-500 dark:text-gray-400 text-sm">{% trans "Store prescriptions & scans securely." %}</p>
+        </a>
+
+        <a href="{% url 'maternal_health:appointments' %}" class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm hover:shadow-md transition border-l-4 border-blue-500 group">
+            <div class="flex justify-between items-start mb-4">
+                <div class="p-3 bg-blue-100 dark:bg-blue-900 rounded-lg group-hover:bg-blue-200 transition">
+                    <span class="text-2xl">📅</span>
+                </div>
+                {% if upcoming_appointments %}
+                <span class="bg-red-100 text-red-800 text-xs font-bold px-2 py-1 rounded-full">{{ upcoming_appointments.count }} {% trans "Due" %}</span>
+                {% endif %}
+            </div>
+            <h3 class="text-xl font-bold text-gray-800 dark:text-gray-100 mb-1">{% trans "Appointments" %}</h3>
+            <p class="text-gray-500 dark:text-gray-400 text-sm">{% trans "Track checkups and reminders." %}</p>
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <div class="lg:col-span-2 space-y-8">
             
-            {% if recent_chats %}
-                <div class="space-y-4">
-                    {% for chat in recent_chats %}
-                    <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition">
-                        <div class="flex justify-between items-start mb-2">
-                            <span class="text-xs font-semibold bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                                {{ chat.created_at|date:"M d, Y" }}
-                            </span>
-                            <span class="text-xs text-gray-400">{{ chat.created_at|time:"H:i" }}</span>
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-bold text-gray-800 dark:text-white flex items-center gap-2">
+                        <span>🗓️</span> {% trans "Upcoming Appointments" %}
+                    </h2>
+                    <a href="{% url 'maternal_health:add_appointment' %}" class="text-sm text-pink-600 font-medium hover:underline">+ {% trans "Add" %}</a>
+                </div>
+                
+                {% if upcoming_appointments %}
+                    <div class="space-y-3">
+                        {% for appt in upcoming_appointments %}
+                        <div class="flex items-center p-3 bg-blue-50 dark:bg-gray-700 rounded-lg border border-blue-100 dark:border-gray-600">
+                            <div class="bg-white dark:bg-gray-600 p-2 rounded-md shadow-sm text-center min-w-[60px]">
+                                <span class="block text-xs text-gray-500 dark:text-gray-300 uppercase">{{ appt.appointment_date|date:"M" }}</span>
+                                <span class="block text-xl font-bold text-blue-600 dark:text-blue-400">{{ appt.appointment_date|date:"d" }}</span>
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <h4 class="font-bold text-gray-800 dark:text-gray-200">{{ appt.title }}</h4>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">
+                                    {{ appt.appointment_time|default:"--:--" }} • {{ appt.doctor_name|default:"Doctor" }}
+                                </p>
+                            </div>
+                            <form method="post" action="{% url 'maternal_health:mark_appointment_complete' appt.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="text-green-600 hover:bg-green-100 p-2 rounded-full" title="Mark Done">✓</button>
+                            </form>
                         </div>
-                        <h3 class="font-bold text-gray-800 dark:text-gray-200 mb-1">
-                            {{ chat.question|truncatechars:80 }}
-                        </h3>
-                        <p class="text-sm text-gray-600 dark:text-gray-400">
-                            {{ chat.answer|striptags|truncatechars:120 }}
-                        </p>
+                        {% endfor %}
                     </div>
-                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-6 bg-gray-50 dark:bg-gray-700 rounded-lg border border-dashed border-gray-200 dark:border-gray-600">
+                        <p class="text-gray-500 dark:text-gray-400 text-sm">{% trans "No upcoming appointments." %}</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-bold text-gray-800 dark:text-white flex items-center gap-2">
+                        <span>📄</span> {% trans "Recent Documents" %}
+                    </h2>
+                    <a href="{% url 'maternal_health:medical_vault' %}" class="text-sm text-pink-600 font-medium hover:underline">{% trans "View Vault" %}</a>
                 </div>
-            {% else %}
-                <div class="bg-white dark:bg-gray-800 p-8 rounded-xl text-center border-dashed border-2 border-gray-200 dark:border-gray-700">
-                    <div class="text-4xl mb-3">💬</div>
-                    <p class="text-gray-500">{% trans "No conversations yet. Start a chat to get advice!" %}</p>
-                </div>
-            {% endif %}
+
+                {% if recent_records %}
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {% for record in recent_records %}
+                        <a href="{% url 'maternal_health:record_detail' record.id %}" class="block p-4 border dark:border-gray-600 rounded-xl hover:border-pink-300 hover:bg-pink-50 dark:hover:bg-gray-700 transition">
+                            <div class="flex items-center gap-3">
+                                <div class="text-2xl">
+                                    {% if record.record_type == 'ultrasound' %}🟣
+                                    {% elif record.record_type == 'prescription' %}🟢
+                                    {% else %}📄{% endif %}
+                                </div>
+                                <div class="overflow-hidden">
+                                    <h4 class="font-bold text-gray-800 dark:text-gray-200 text-sm truncate">{{ record.title }}</h4>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ record.record_date }}</p>
+                                </div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-6 bg-gray-50 dark:bg-gray-700 rounded-lg border border-dashed border-gray-200 dark:border-gray-600">
+                        <p class="text-gray-500 dark:text-gray-400 text-sm">{% trans "No documents uploaded yet." %}</p>
+                        <a href="{% url 'maternal_health:upload_record' %}" class="text-pink-600 font-bold text-xs mt-2 inline-block">{% trans "Upload First Record" %}</a>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+                <h2 class="text-lg font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+                    <span>💬</span> {% trans "Recent AI Chats" %}
+                </h2>
+                {% if recent_chats %}
+                    <div class="space-y-3">
+                        {% for chat in recent_chats %}
+                        <div class="border-l-2 border-orange-300 pl-3">
+                            <p class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ chat.question|truncatechars:60 }}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ chat.created_at|date:"M d" }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                     <p class="text-gray-500 text-sm italic">{% trans "No recent conversations." %}</p>
+                {% endif %}
+            </div>
+
         </div>
 
-        <div>
-            <h2 class="text-xl font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
-                <span>📚</span> {% trans "Helpful Resources" %}
-            </h2>
+        <div class="space-y-6">
             
-            {% if resources %}
-                <div class="space-y-6">
-                    {% for key, resource in resources.items %}
-                    <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm border-l-4 border-orange-400">
-                        <h3 class="font-bold text-gray-800 dark:text-gray-200 mb-2">{{ resource.title }}</h3>
-                        <ul class="space-y-2">
-                            {% for item in resource.content %}
-                            <li class="text-sm text-gray-600 dark:text-gray-400 flex items-start gap-2">
-                                <span class="text-orange-400 mt-1">•</span>
-                                {{ item }}
-                            </li>
-                            {% endfor %}
-                        </ul>
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+                <h3 class="font-bold text-gray-800 dark:text-white mb-4">📊 {% trans "Quick Stats" %}</h3>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <span class="text-gray-600 dark:text-gray-300">{% trans "Ultrasounds" %}</span>
+                        <span class="font-bold text-gray-900 dark:text-white">{{ ultrasound_count|default:"0" }}</span>
                     </div>
-                    {% endfor %}
+                    <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <span class="text-gray-600 dark:text-gray-300">{% trans "Total Files" %}</span>
+                        <span class="font-bold text-gray-900 dark:text-white">{{ total_records|default:"0" }}</span>
+                    </div>
                 </div>
-            {% else %}
-                <div class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm">
-                    <p class="text-gray-500 text-sm">{% trans "Resources loading..." %}</p>
-                </div>
-            {% endif %}
+            </div>
+
+            <div class="bg-gradient-to-br from-pink-500 to-orange-400 rounded-xl shadow-lg p-6 text-white">
+                <h3 class="font-bold mb-2">👥 {% trans "Community" %}</h3>
+                <p class="text-white/90 text-sm mb-4">{% trans "Connect with other mothers for support and advice." %}</p>
+                <a href="{% url 'community_forum:home' %}" class="block w-full bg-white text-pink-600 text-center py-2 rounded-lg font-bold hover:bg-gray-50 transition">
+                    {% trans "Join Discussion" %}
+                </a>
+            </div>
+
         </div>
     </div>
 </div>

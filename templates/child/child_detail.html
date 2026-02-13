@@ -1,51 +1,64 @@
 {% extends 'base.html' %}
-{% load i18n %}
-
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 py-8">
-    <div class="flex items-center gap-6 mb-8 bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm">
+    
+    <div class="bg-white rounded-2xl shadow-sm p-6 mb-8 flex flex-col md:flex-row items-center gap-8">
         {% if child.photo %}
-            <img src="{{ child.photo.url }}" class="w-24 h-24 rounded-full object-cover border-4 border-green-100">
+            <img src="{{ child.photo.url }}" class="w-32 h-32 rounded-full object-cover border-4 border-green-100">
         {% else %}
-            <div class="w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center text-4xl">👶</div>
+            <div class="w-32 h-32 rounded-full bg-green-100 flex items-center justify-center text-5xl">👶</div>
         {% endif %}
-        <div>
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ child.name }}</h1>
-            <p class="text-gray-500">{{ child.age_display }} • {{ child.date_of_birth }}</p>
+        
+        <div class="flex-1 text-center md:text-left">
+            <h1 class="text-4xl font-bold text-gray-900">{{ child.name }}</h1>
+            <p class="text-gray-500 text-lg mt-1">{{ child.age_display }} • Blood Group: {{ child.blood_group|default:"--" }}</p>
+        </div>
+
+        <div class="flex gap-3">
+            <a href="{% url 'child_tracker:edit_child' child.id %}" class="px-4 py-2 border rounded-lg hover:bg-gray-50">Edit Profile</a>
+            <a href="{% url 'child_tracker:add_memory' child.id %}" class="px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700">📸 Add Memory</a>
         </div>
     </div>
 
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <a href="{% url 'child_tracker:vaccine_tracker' child.id %}" class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl text-center hover:bg-blue-100 transition">
-            <div class="text-2xl mb-2">💉</div>
-            <div class="font-bold text-blue-700 dark:text-blue-300">{% trans "Vaccines" %}</div>
+        <a href="{% url 'child_tracker:vaccine_tracker' child.id %}" class="p-4 bg-blue-50 rounded-xl hover:bg-blue-100 transition">
+            <div class="text-3xl mb-2">💉</div>
+            <div class="font-bold text-blue-900">Vaccines</div>
+            <div class="text-sm text-blue-700">{{ completed_vaccines }}/{{ total_vaccines }} Done</div>
         </a>
-        <a href="{% url 'child_tracker:growth_tracker' child.id %}" class="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl text-center hover:bg-green-100 transition">
-            <div class="text-2xl mb-2">📏</div>
-            <div class="font-bold text-green-700 dark:text-green-300">{% trans "Growth" %}</div>
+        <a href="{% url 'child_tracker:milestone_tracker' child.id %}" class="p-4 bg-purple-50 rounded-xl hover:bg-purple-100 transition">
+            <div class="text-3xl mb-2">🏆</div>
+            <div class="font-bold text-purple-900">Milestones</div>
+            <div class="text-sm text-purple-700">{{ achieved_milestones }} Achieved</div>
         </a>
-        <a href="{% url 'child_tracker:milestone_tracker' child.id %}" class="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-xl text-center hover:bg-purple-100 transition">
-            <div class="text-2xl mb-2">🏆</div>
-            <div class="font-bold text-purple-700 dark:text-purple-300">{% trans "Milestones" %}</div>
+        <a href="{% url 'child_tracker:growth_tracker' child.id %}" class="p-4 bg-green-50 rounded-xl hover:bg-green-100 transition">
+            <div class="text-3xl mb-2">📏</div>
+            <div class="font-bold text-green-900">Growth</div>
+            <div class="text-sm text-green-700">{{ growth_count }} Records</div>
         </a>
-        <a href="{% url 'child_tracker:emergency_info' child.id %}" class="p-4 bg-red-50 dark:bg-red-900/20 rounded-xl text-center hover:bg-red-100 transition">
-            <div class="text-2xl mb-2">🆘</div>
-            <div class="font-bold text-red-700 dark:text-red-300">{% trans "Emergency" %}</div>
+        <a href="{% url 'child_tracker:memories_gallery' child.id %}" class="p-4 bg-pink-50 rounded-xl hover:bg-pink-100 transition">
+            <div class="text-3xl mb-2">🖼️</div>
+            <div class="font-bold text-pink-900">Gallery</div>
+            <div class="text-sm text-pink-700">{{ total_memories }} Photos</div>
         </a>
     </div>
 
-    {% if next_vaccine %}
-    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-8 rounded-r-lg">
-        <div class="flex">
-            <div class="ml-3">
-                <p class="text-sm text-yellow-700">
-                    <strong>{% trans "Upcoming Vaccine:" %}</strong> 
-                    {{ next_vaccine.vaccine.vaccine_name }} 
-                    ({% trans "Due at" %} {{ next_vaccine.vaccine.age_in_months }} {% trans "months" %})
-                </p>
+    <h2 class="text-2xl font-bold mb-4">Recent Memories</h2>
+    <div class="grid grid-cols-2 md:grid-cols-6 gap-4">
+        {% for memory in recent_memories %}
+            <div class="aspect-square rounded-lg overflow-hidden relative group">
+                {% if memory.media_type == 'photo' %}
+                    <img src="{{ memory.file.url }}" class="w-full h-full object-cover">
+                {% else %}
+                    <video src="{{ memory.file.url }}" class="w-full h-full object-cover"></video>
+                {% endif %}
+                <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
+                    <p class="text-white text-xs font-bold">{{ memory.title }}</p>
+                </div>
             </div>
-        </div>
+        {% empty %}
+            <p class="text-gray-500 col-span-full">No memories yet.</p>
+        {% endfor %}
     </div>
-    {% endif %}
 </div>
 {% endblock %}

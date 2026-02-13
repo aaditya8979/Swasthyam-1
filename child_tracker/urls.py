@@ -26,10 +26,13 @@ urlpatterns = [
     path('child/<int:child_id>/medications/', views.medication_list, name='medication_list'),
     path('child/<int:child_id>/medication/add/', views.add_medication, name='add_medication'),
     
-    # Milestones
+    # Milestones - Enhanced Interactive Tracker
     path('child/<int:child_id>/milestones/', views.milestone_tracker, name='milestone_tracker'),
     path('child/<int:child_id>/milestone/<int:record_id>/achieve/', views.mark_milestone, name='mark_milestone'),
     
-    # Emergency Info
-    path('child/<int:child_id>/emergency/', views.emergency_info, name='emergency_info'),
+    # Our Memories - Photo & Video Gallery
+    path('child/<int:child_id>/memories/', views.memories_gallery, name='memories_gallery'),
+    path('child/<int:child_id>/memories/add/', views.add_memory, name='add_memory'),
+    path('child/<int:child_id>/memory/<int:memory_id>/favorite/', views.toggle_favorite_memory, name='toggle_favorite_memory'),
+    path('child/<int:child_id>/memory/<int:memory_id>/delete/', views.delete_memory, name='delete_memory'),
 ]

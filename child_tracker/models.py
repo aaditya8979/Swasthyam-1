@@ -276,26 +276,73 @@ class MilestoneRecord(models.Model):
         return f"{self.child.name} - {self.milestone.title} ({status})"
 
 
-class EmergencyContact(models.Model):
+class Memory(models.Model):
     """
-    Emergency contacts for child's healthcare.
+    Store precious photos and videos of child's journey.
     """
     
-    child = models.ForeignKey(Child, on_delete=models.CASCADE, related_name='emergency_contacts')
+    MEDIA_TYPE_CHOICES = [
+        ('photo', _('Photo')),
+        ('video', _('Video')),
+    ]
     
-    name = models.CharField(max_length=100)
-    relationship = models.CharField(max_length=50, help_text=_("e.g., Pediatrician, Grandparent"))
-    phone = models.CharField(max_length=20)
-    email = models.EmailField(blank=True)
-    address = models.TextField(blank=True)
+    child = models.ForeignKey(Child, on_delete=models.CASCADE, related_name='memories')
     
-    # Priority
-    is_primary = models.BooleanField(default=False)
+    # Media
+    media_type = models.CharField(max_length=10, choices=MEDIA_TYPE_CHOICES, default='photo')
+    file = models.FileField(
+        upload_to='child_memories/',
+        help_text=_("Upload photo or video (max 10MB for videos)")
+    )
+    thumbnail = models.ImageField(upload_to='child_memories/thumbnails/', blank=True, null=True)
+    
+    # Details
+    title = models.CharField(max_length=200, blank=True, help_text=_("e.g., First Steps, Birthday Party"))
+    description = models.TextField(blank=True, help_text=_("Capture the moment"))
+    memory_date = models.DateField(default=date.today, help_text=_("When was this moment?"))
+    
+    # Child's age at that time
+    child_age_months = models.PositiveIntegerField(null=True, blank=True, help_text=_("Auto-calculated"))
+    
+    # Tagging
+    is_milestone = models.BooleanField(default=False, help_text=_("Is this a milestone moment?"))
+    tags = models.CharField(max_length=200, blank=True, help_text=_("Tags separated by commas"))
+    
+    # Favorites
+    is_favorite = models.BooleanField(default=False)
+    
+    # Metadata
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
-        verbose_name = _("Emergency Contact")
-        verbose_name_plural = _("Emergency Contacts")
-        ordering = ['-is_primary', 'name']
+        verbose_name = _("Memory")
+        verbose_name_plural = _("Memories")
+        ordering = ['-memory_date', '-created_at']
     
     def __str__(self):
-        return f"{self.name} ({self.relationship}) for {self.child.name}"
+        return f"{self.child.name} - {self.title or 'Memory'} ({self.memory_date})"
+    
+    def save(self, *args, **kwargs):
+        # Auto-calculate child's age at memory date
+        if self.memory_date and self.child:
+            months = (self.memory_date.year - self.child.date_of_birth.year) * 12
+            months += self.memory_date.month - self.child.date_of_birth.month
+            self.child_age_months = max(0, months)
+        
+        super().save(*args, **kwargs)
+    
+    @property
+    def age_at_memory(self):
+        """Human-readable age at the time of memory"""
+        if not self.child_age_months:
+            return _("Newborn")
+        
+        months = self.child_age_months
+        if months < 12:
+            return f"{months} {_('months')}"
+        years = months // 12
+        remaining_months = months % 12
+        if remaining_months == 0:
+            return f"{years} {_('years')}"
+        return f"{years} {_('years')} {remaining_months} {_('months')}"

@@ -7,36 +7,22 @@ from django.core.paginator import Paginator
 from .models import Post, Category, Comment, Like, Bookmark, Report
 from .forms import PostForm, CommentForm
 
-@login_required
 def forum_home(request):
-    """Main forum dashboard with categories and recent posts."""
+    # --- AUTO-FIX: Create Categories if missing ---
+    if Category.objects.count() == 0:
+        defaults = [
+            ("Maternal Health", "🤰", "Pregnancy discussions"),
+            ("Child Nutrition", "🍎", "Feeding tips"),
+            ("Mental Wellness", "🧘‍♀️", "Stress support"),
+            ("Vaccinations", "💉", "Reminders & info"),
+        ]
+        for name, icon, desc in defaults:
+            Category.objects.create(name=name, icon=icon, description=desc)
+    # ---------------------------------------------
+    
+    posts = Post.objects.all().order_by('-created_at')
     categories = Category.objects.all()
-    
-    # Filter posts
-    posts_list = Post.objects.filter(status='published')
-    
-    # Search
-    query = request.GET.get('q')
-    if query:
-        posts_list = posts_list.filter(
-            Q(title__icontains=query) | Q(content__icontains=query)
-        )
-    
-    # Filter by Maternal Health if requested
-    if request.GET.get('filter') == 'maternal':
-        posts_list = posts_list.filter(is_maternal_related=True)
-
-    # Pagination
-    paginator = Paginator(posts_list, 10)
-    page_number = request.GET.get('page')
-    posts = paginator.get_page(page_number)
-
-    context = {
-        'categories': categories,
-        'posts': posts,
-        'query': query
-    }
-    return render(request, 'forum/home.html', context)
+    return render(request, 'forum/home.html', {'posts': posts, 'categories': categories})
 
 @login_required
 def category_posts(request, slug):
@@ -188,8 +174,14 @@ def delete_comment(request, comment_id): pass
 @login_required
 def like_comment(request, comment_id): pass
 @login_required
-def report_post(request, post_id): 
-    return JsonResponse({'success': True}) # Placeholder
+@login_required
+def report_post(request, slug):
+    post = get_object_or_404(Post, slug=slug)
+    # Hide from public immediately
+    post.is_active = False 
+    post.save()
+    messages.warning(request, "Post reported and hidden for review.")
+    return redirect('community_forum:home')
 @login_required
 def report_comment(request, comment_id): 
     return JsonResponse({'success': True}) # Placeholder

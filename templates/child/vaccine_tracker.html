@@ -46,14 +46,38 @@
 </div>
 
 <script>
-async function toggleVaccine(childId, recordId) {
-    const response = await fetch(`/child/${childId}/vaccine/${recordId}/complete/`, {
+function toggleVaccine(recordId) {
+    if(!confirm('Change vaccination status?')) return;
+
+    // Fixed URL structure to match your urls.py
+    // path('child/<int:child_id>/vaccine/<int:record_id>/complete/'...)
+    const url = `/child/child/{{ child.id }}/vaccine/${recordId}/complete/`;
+
+    fetch(url, {
         method: 'POST',
-        headers: {'X-CSRFToken': '{{ csrf_token }}'}
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({}) // Empty body is fine for this toggle
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            location.reload(); // Refresh to show green checkmark
+        } else {
+            alert('Server error: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Fetch error:', error);
+        alert('Could not update status. Check console for details.');
     });
-    if (response.ok) {
-        location.reload();
-    }
 }
 </script>
 {% endblock %}

@@ -1,0 +1,36 @@
+<div id="google_translate_element" class="hidden"></div>
+
+<script type="text/javascript">
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({
+    pageLanguage: 'en',
+    includedLanguages: 'en,hi,bn,ta,te,mr', // English, Hindi, Bengali, Tamil, Telugu, Marathi
+    layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+    autoDisplay: false
+  }, 'google_translate_element');
+}
+</script>
+<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+<button onclick="triggerHindi()" class="fixed bottom-4 right-4 bg-orange-600 text-white px-4 py-2 rounded-full shadow-lg hover:bg-orange-700 z-50 flex items-center gap-2">
+    <span class="text-xl">🕉️</span>
+    <span class="font-bold">Translate to Hindi</span>
+</button>
+
+<script>
+    function triggerHindi() {
+        const select = document.querySelector('.goog-te-combo');
+        if (select) {
+            select.value = 'hi'; 
+            select.dispatchEvent(new Event('change'));
+        }
+    }
+</script>
+
+<style>
+    /* Hide the Google Top Bar */
+    .goog-te-banner-frame.skiptranslate { display: none !important; } 
+    body { top: 0px !important; }
+    /* Hide the original Google widget dropdown if you want purely custom buttons */
+    .goog-te-combo { opacity: 0; height: 0; }
+</style>

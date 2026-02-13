@@ -1,27 +1,131 @@
 {% extends 'base.html' %}
 {% load i18n %}
+
 {% block content %}
-<div class="max-w-4xl mx-auto px-4 py-8">
-    <h1 class="text-2xl font-bold mb-6 dark:text-white">{% trans "Developmental Milestones" %}</h1>
+<div class="max-w-7xl mx-auto px-4 py-8">
     
-    <div class="space-y-4">
-        {% for record in records %}
-        <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm flex justify-between items-center border-l-4 
-            {% if record.achieved %}border-green-500{% else %}border-gray-300{% endif %}">
-            <div>
-                <h3 class="font-bold text-gray-900 dark:text-white">{{ record.milestone.title }}</h3>
-                <p class="text-sm text-gray-500">{{ record.milestone.typical_age_months }} {% trans "months" %}</p>
-            </div>
-            
-            {% if record.achieved %}
-                <span class="text-green-600 font-bold">✓ {% trans "Achieved" %}</span>
-            {% else %}
-                <button class="bg-gray-100 hover:bg-green-100 text-gray-600 hover:text-green-700 px-4 py-2 rounded-lg transition">
-                    {% trans "Mark Achieved" %}
-                </button>
-            {% endif %}
+    <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800 dark:text-white">🏆 {% trans "Developmental Milestones" %}</h1>
+            <p class="text-gray-500 dark:text-gray-400">
+                {% trans "Tracking progress for" %} <span class="font-bold text-purple-600">{{ child.name }}</span>
+                ({{ child.age_display }})
+            </p>
         </div>
+        
+        <div class="w-full md:w-1/3 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+            <div class="flex justify-between text-sm mb-1">
+                <span class="font-bold text-gray-700 dark:text-gray-300">{% trans "Overall Progress" %}</span>
+                <span class="font-bold text-purple-600">{{ overall_progress|floatform:0 }}%</span>
+            </div>
+            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                <div class="bg-purple-600 h-2.5 rounded-full transition-all duration-500" style="width: {{ overall_progress }}%"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-100 dark:border-blue-800">
+            <h3 class="font-bold text-blue-800 dark:text-blue-300">🏃 {% trans "Motor Skills" %}</h3>
+            <p class="text-xs text-blue-600 dark:text-blue-400">{{ progress.motor|floatformat:0 }}% {% trans "Complete" %}</p>
+        </div>
+        <div class="bg-green-50 dark:bg-green-900/20 p-4 rounded-xl border border-green-100 dark:border-green-800">
+            <h3 class="font-bold text-green-800 dark:text-green-300">🗣️ {% trans "Language" %}</h3>
+            <p class="text-xs text-green-600 dark:text-green-400">{{ progress.language|floatformat:0 }}% {% trans "Complete" %}</p>
+        </div>
+        <div class="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-xl border border-yellow-100 dark:border-yellow-800">
+            <h3 class="font-bold text-yellow-800 dark:text-yellow-300">🧠 {% trans "Cognitive" %}</h3>
+            <p class="text-xs text-yellow-600 dark:text-yellow-400">{{ progress.cognitive|floatformat:0 }}% {% trans "Complete" %}</p>
+        </div>
+        <div class="bg-pink-50 dark:bg-pink-900/20 p-4 rounded-xl border border-pink-100 dark:border-pink-800">
+            <h3 class="font-bold text-pink-800 dark:text-pink-300">😊 {% trans "Social" %}</h3>
+            <p class="text-xs text-pink-600 dark:text-pink-400">{{ progress.social|floatformat:0 }}% {% trans "Complete" %}</p>
+        </div>
+    </div>
+    <div class="space-y-8">
+        
+        {% for category, records in milestone_groups.items %} 
         {% endfor %}
+
+        <section>
+            <h2 class="text-xl font-bold text-gray-800 dark:text-white mb-4 border-l-4 border-blue-500 pl-3">
+                {% trans "Motor Skills" %}
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for record in motor_milestones %}
+                    {% include 'child/includes/milestone_card.html' with record=record color="blue" %}
+                {% empty %}
+                    <p class="text-gray-500 italic col-span-full">{% trans "No motor milestones found." %}</p>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section>
+            <h2 class="text-xl font-bold text-gray-800 dark:text-white mb-4 border-l-4 border-green-500 pl-3">
+                {% trans "Language & Communication" %}
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for record in language_milestones %}
+                    {% include 'child/includes/milestone_card.html' with record=record color="green" %}
+                {% empty %}
+                    <p class="text-gray-500 italic col-span-full">{% trans "No language milestones found." %}</p>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section>
+            <h2 class="text-xl font-bold text-gray-800 dark:text-white mb-4 border-l-4 border-yellow-500 pl-3">
+                {% trans "Cognitive Development" %}
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for record in cognitive_milestones %}
+                    {% include 'child/includes/milestone_card.html' with record=record color="yellow" %}
+                {% empty %}
+                    <p class="text-gray-500 italic col-span-full">{% trans "No cognitive milestones found." %}</p>
+                {% endfor %}
+            </div>
+        </section>
+        
+         <section>
+            <h2 class="text-xl font-bold text-gray-800 dark:text-white mb-4 border-l-4 border-pink-500 pl-3">
+                {% trans "Social & Emotional" %}
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for record in social_milestones %}
+                    {% include 'child/includes/milestone_card.html' with record=record color="pink" %}
+                {% empty %}
+                    <p class="text-gray-500 italic col-span-full">{% trans "No social milestones found." %}</p>
+                {% endfor %}
+            </div>
+        </section>
+
     </div>
 </div>
+
+<script>
+function toggleMilestone(recordId, btnElement) {
+    // Send AJAX Request
+    // FIXED URL: Removed duplicate '/child/'
+    fetch(`/child/child/{{ child.id }}/milestone/${recordId}/achieve/`, { 
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({
+            achieved: !btnElement.classList.contains('bg-green-600') // Simple toggle check
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload(); // Reload to update progress bars
+        } else {
+            console.error('Error:', data.error);
+            alert('Could not update milestone.');
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+</script>
 {% endblock %}

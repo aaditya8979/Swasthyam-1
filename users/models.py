@@ -10,31 +10,26 @@ from django.utils.translation import gettext_lazy as _
 from PIL import Image
 import os
 
-
 class UserProfile(models.Model):
     """
     Extended user profile with health tracking data.
-    This is the CORE model that enables context-aware AI responses.
     """
     
+    # --- CHOICES ---
     GENDER_CHOICES = [
         ('M', _('Male')),
         ('F', _('Female')),
         ('O', _('Other')),
         ('N', _('Prefer not to say')),
     ]
+    
     AVATAR_CHOICES = [
         ('avatar1', 'Avatar 1'),
         ('avatar2', 'Avatar 2'),
         ('avatar3', 'Avatar 3'),
+        ('male', 'Male Default'),
+        ('female', 'Female Default'),
     ]
-
-    avatar = models.CharField(
-        max_length=20,
-        choices=AVATAR_CHOICES,
-        blank=True,
-        null=True
-    )
 
     PREGNANCY_STATUS_CHOICES = [
         ('not_pregnant', _('Not Pregnant')),
@@ -43,163 +38,85 @@ class UserProfile(models.Model):
         ('not_applicable', _('Not Applicable')),
     ]
     
+    # --- FIELDS ---
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     
-    # Basic Demographics
-    age = models.PositiveIntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(120)],
-        null=True,
-        blank=True,
-        help_text=_("Age in years")
-    )
-    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, default='N')
-    
-    # Physical Metrics
-    height = models.DecimalField(
-        max_digits=5,
-        decimal_places=2,
-        null=True,
-        blank=True,
-        help_text=_("Height in centimeters")
-    )
-    weight = models.DecimalField(
-        max_digits=5,
-        decimal_places=2,
-        null=True,
-        blank=True,
-        help_text=_("Weight in kilograms")
-    )
-    
-    # Professional & Lifestyle
-    profession = models.CharField(max_length=100, blank=True, help_text=_("Occupation"))
-    location = models.CharField(max_length=100, blank=True, help_text=_("City, State"))
-    
-    # Maternal Health Specific
-    pregnancy_status = models.CharField(
+    # Avatar Selection
+    avatar = models.CharField(
         max_length=20,
-        choices=PREGNANCY_STATUS_CHOICES,
-        default='not_applicable'
-    )
-    pregnancy_weeks = models.PositiveIntegerField(
-        null=True,
+        choices=AVATAR_CHOICES,
+        default='avatar1',
         blank=True,
-        validators=[MinValueValidator(0), MaxValueValidator(42)],
-        help_text=_("Current week of pregnancy (0-42)")
+        null=True
     )
-    due_date = models.DateField(null=True, blank=True, help_text=_("Expected delivery date"))
     
-    # Children Information (for Child Tracker)
-    number_of_children = models.PositiveIntegerField(default=0)
-    
-    # Profile Picture
-
+    # Uploaded Picture
     profile_picture = models.ImageField(
         upload_to='profile_pictures/',
-        default='profile_pictures/default.png',
         blank=True,
         null=True
     )
 
-    # Preferences
-    preferred_language = models.CharField(max_length=5, default='en', choices=[('en', 'English'), ('hi', 'Hindi')])
+    # Demographics
+    age = models.PositiveIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(120)],
+        null=True, blank=True
+    )
+    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, default='N')
+    
+    # Metrics
+    height = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    weight = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    profession = models.CharField(max_length=100, blank=True)
+    location = models.CharField(max_length=100, blank=True)
+    
+    # Maternal Health
+    pregnancy_status = models.CharField(max_length=20, choices=PREGNANCY_STATUS_CHOICES, default='not_applicable')
+    pregnancy_weeks = models.PositiveIntegerField(null=True, blank=True, validators=[MinValueValidator(0), MaxValueValidator(42)])
+    due_date = models.DateField(null=True, blank=True)
+    number_of_children = models.PositiveIntegerField(default=0)
+    
+    # Settings (RESTORED THESE FIELDS)
+    preferred_language = models.CharField(max_length=5, default='en')
     dark_mode_enabled = models.BooleanField(default=False)
     email_notifications = models.BooleanField(default=True)
     
-    # Medical Disclaimers
-    accepted_terms = models.BooleanField(default=False)
-    medical_disclaimer_accepted = models.BooleanField(default=False)
-    
     # Metadata
     profile_completed = models.BooleanField(default=False)
+    medical_disclaimer_accepted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
-    class Meta:
-        verbose_name = _("User Profile")
-        verbose_name_plural = _("User Profiles")
-        ordering = ['-created_at']
-    
+
     def __str__(self):
         return f"{self.user.username}'s Profile"
-    
-    @property
-    def full_name(self):
-        """Return user's full name or username"""
-        return self.user.get_full_name() or self.user.username
-    
-    @property
-    def bmi(self):
-        """Calculate BMI if height and weight are available"""
-        if self.height and self.weight:
-            height_m = float(self.height) / 100
-            return round(float(self.weight) / (height_m ** 2), 2)
-        return None
-    
-    @property
-    def bmi_category(self):
-        """Return BMI category"""
-        bmi = self.bmi
-        if not bmi:
-            return None
-        if bmi < 18.5:
-            return _("Underweight")
-        elif 18.5 <= bmi < 25:
-            return _("Normal weight")
-        elif 25 <= bmi < 30:
-            return _("Overweight")
-        else:
-            return _("Obese")
-    
-    @property
-    def pregnancy_trimester(self):
-        """Return current trimester if pregnant"""
-        if self.pregnancy_status == 'pregnant' and self.pregnancy_weeks:
-            if self.pregnancy_weeks <= 13:
-                return 1
-            elif self.pregnancy_weeks <= 26:
-                return 2
-            else:
-                return 3
-        return None
-    
-    @property
-    def profile_completion_percentage(self):
-        """Calculate profile completion percentage"""
-        fields = [
-            self.age, self.gender, self.height, self.weight,
-            self.profession, self.location, self.profile_picture.name != 'profile_pictures/default.png'
-        ]
-        filled = sum(1 for field in fields if field)
-        return round((filled / len(fields)) * 100)
 
     @property
-
     def display_profile_image(self):
-        if self.profile_picture and self.profile_picture.name != 'profile_pictures/default.png':
+        """Logic: Return Uploaded Image -> OR Selected Avatar -> OR Default."""
+        if self.profile_picture:
             return self.profile_picture.url
         if self.avatar:
             return f"/static/avatars/{self.avatar}.png"
         return "/static/avatars/default.png"
 
+    @property
+    def full_name(self):
+        return self.user.get_full_name() or self.user.username
+
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-
-        # Resize only USER-UPLOADED images (not default)
-        if (
-                self.profile_picture
-                and self.profile_picture.name != 'profile_pictures/default.png'
-                and os.path.exists(self.profile_picture.path)
-        ):
-            img = Image.open(self.profile_picture.path)
-
-            if img.mode in ('RGBA', 'P'):
-                img = img.convert('RGB')
-
-            if img.height > 400 or img.width > 400:
-                img.thumbnail((400, 400), Image.Resampling.LANCZOS)
-                img.save(self.profile_picture.path, quality=85, optimize=True)
-
-
+        # Resize uploaded image if it exists
+        if self.profile_picture:
+            try:
+                img_path = self.profile_picture.path
+                if os.path.exists(img_path):
+                    img = Image.open(img_path)
+                    if img.height > 400 or img.width > 400:
+                        output_size = (400, 400)
+                        img.thumbnail(output_size)
+                        img.save(img_path)
+            except Exception:
+                pass
 class ChatHistory(models.Model):
     """
     Store chat history for the RAG chatbot.
