@@ -1,22 +1,25 @@
 echo "BUILD START"
 
-# 1. Install dependencies using the specific python3.9 module
-# We add --no-cache-dir to prevent installing broken cached versions
-python3.9 -m pip install -r requirements.txt --no-cache-dir
+# 1. Install dependencies into the CURRENT folder (-t .)
+# This forces Django to be right next to manage.py, so it CANNOT be missed.
+python3.9 -m pip install -r requirements.txt -t . --no-cache-dir --upgrade
 
-# 2. explicit check: Verify Django is actually installed
-echo "Verifying Django installation..."
+# 2. Verify Django is accessible
+echo "Verifying Django..."
 python3.9 -m django --version
 
-# 3. Run Migrations
+# 3. Create the output directory manually (just in case)
+mkdir -p staticfiles_build
+
+# 4. Run Migrations
 echo "Running Migrations..."
 python3.9 manage.py makemigrations --noinput
 python3.9 manage.py migrate --noinput
 
-# 4. Seed Data (Optional - comment out if it fails)
+# 5. Seed Data (Optional - remove if it causes issues)
 # python3.9 manage.py seed_data
 
-# 5. Collect Static Files (Crucial step)
+# 6. Collect Static Files
 echo "Collecting Static Files..."
 python3.9 manage.py collectstatic --noinput --clear
 
