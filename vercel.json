@@ -1,14 +1,19 @@
 {
     "builds": [
         {
-            "src": "swasthyam/wsgi.py",
-            "use": "@vercel/python",
-            "config": { "maxLambdaSize": "15mb", "runtime": "python3.9" }
-        },
-        {
             "src": "build_files.sh",
             "use": "@vercel/static-build",
-            "config": { "distDir": "staticfiles_build" }
+            "config": {
+                "distDir": "staticfiles_build"
+            }
+        },
+        {
+            "src": "Swasthyam/wsgi.py",
+            "use": "@vercel/python",
+            "config": {
+                "maxLambdaSize": "15mb",
+                "runtime": "python3.9"
+            }
         }
     ],
     "routes": [
@@ -18,7 +23,7 @@
         },
         {
             "src": "/(.*)",
-            "dest": "swasthyam/wsgi.py"
+            "dest": "Swasthyam/wsgi.py"
         }
     ]
 }

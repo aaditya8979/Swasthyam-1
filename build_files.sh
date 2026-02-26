@@ -1,11 +1,13 @@
 # build_files.sh
-pip install -r requirements.txt
 
-# 1. Migrate Database
+# Install requirements with the "break-system-packages" flag to bypass the error
+pip install -r requirements.txt --break-system-packages
+
+# Run migrations
 python3.9 manage.py migrate
 
-# 2. Run Seed Data (This adds your vaccines & milestones automatically!)
+# Seed data (If you kept this step)
 python3.9 manage.py seed_data
 
-# 3. Collect Static Files
+# Collect static files
 python3.9 manage.py collectstatic --noinput --clear
