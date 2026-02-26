@@ -1,25 +1,23 @@
-# build_files.sh
-
 echo "BUILD START"
 
-# 1. Create a virtual environment named 'venv'
-python3.9 -m venv venv
+# 1. Install dependencies using the specific python3.9 module
+# We add --no-cache-dir to prevent installing broken cached versions
+python3.9 -m pip install -r requirements.txt --no-cache-dir
 
-# 2. Activate the virtual environment
-source venv/bin/activate
+# 2. explicit check: Verify Django is actually installed
+echo "Verifying Django installation..."
+python3.9 -m django --version
 
-# 3. Install dependencies INSIDE the venv
-# Note: We don't need --break-system-packages here because we are in a venv
-pip install -r requirements.txt
+# 3. Run Migrations
+echo "Running Migrations..."
+python3.9 manage.py makemigrations --noinput
+python3.9 manage.py migrate --noinput
 
-# 4. Make migrations
-python manage.py makemigrations
-python manage.py migrate
+# 4. Seed Data (Optional - comment out if it fails)
+# python3.9 manage.py seed_data
 
-# 5. Seed Data (If you are using this)
-python manage.py seed_data
-
-# 6. Collect Static Files
-python manage.py collectstatic --noinput --clear
+# 5. Collect Static Files (Crucial step)
+echo "Collecting Static Files..."
+python3.9 manage.py collectstatic --noinput --clear
 
 echo "BUILD END"
