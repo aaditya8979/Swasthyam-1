@@ -5,6 +5,7 @@ Optimized for health data security and multi-language support.
 
 import os
 from pathlib import Path
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -15,7 +16,7 @@ SECRET_KEY = 'django-insecure-CHANGE-THIS-IN-PRODUCTION'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['.vercel.app', 'now.sh', '127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -74,11 +75,14 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 
 # Database
+# Replace the old SQLite DATABASES = { ... } block with this:
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        # Replace this string with your actual Connection String from Step 1
+        default='postgresql://neondb_owner:npg_uLvA2I3FGsSX@ep-floral-meadow-a10n9nee-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require', 
+        conn_max_age=600
+    )
 }
 
 # For production, use PostgreSQL:
@@ -134,9 +138,9 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-STATIC_URL = 'static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles_build', 'static')
 
 # Media files (User uploads)
 MEDIA_URL = 'media/'
